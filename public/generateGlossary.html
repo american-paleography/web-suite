@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Concordance Plus</title>
+        <link type="text/css" href="css/custom-theme/jQuery.css" rel="Stylesheet" />
+        <script type="text/javascript" src="js/newberry.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+        <script src="https://use.fontawesome.com/4ae676603d.js"></script>
+
+        <link href="/css/generateGlossary.css" rel="stylesheet">
+	<script src="/js/generateGlossary.js"></script>
+	<script>window.onerror = alert</script>
+	<script src="/js/searchLines.js"></script>
+    </head>    
+    <style>
+        p{
+            padding: 0px 10px;
+        }
+        .magnifyHelp{
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            margin: 0 auto;
+            background-color: rgb(255,252,227);
+            padding: 0;
+            color: #666;
+            text-align: center;
+            z-index: 3;
+            display: none;
+            box-shadow: 0 0 5px rgba(0,0,0,0.34);
+            opacity: .85;
+        }
+        .magnifyHelp p {
+            white-space: nowrap;
+            margin: 0;
+            padding: .25em;
+        }
+        
+        .magifyHelp button{
+            width: 35px;
+        }
+        
+        .parsingHdr{
+            margin-left: 20px;
+        }
+        optgroup{
+            background-color: grey;
+            color: #002a5c;
+        }
+        
+        
+        
+    </style>
+    <body>
+    	<h1>Concordance Plus</h1>
+	<p>
+		<label for="line-height">Line Height</label>
+		<input type="number" name="line-height" value="1" min="0.1" step="0.1"></input>
+	</p>
+
+	<p>
+		<h3>Search Tool</h3>
+
+		<ul>
+			<li>
+				<label>Line Index (comma-separated)</label>
+				<input id="search-line-index"></input>
+			</li>
+			<li>
+				<label>Text (verbatim)</label>
+				<button id="add-search-text">add text filter</button>
+				<input class="search-text"></input>
+			</li>
+		</ul>
+
+		<button id="do-search">Search</button>
+		<div id="search-output"></div>
+	</p>
+
+	<p>
+		<h3>Abbreviations & Variants</h2>
+		<p>
+			<input name="base_word" type="text" placeholder="base word" />
+			<input name="alt_word" type="text" placeholder="alternate form" />
+			<button id="add_variant">Add Variant Form</button>
+			<ul id="variants_listing"></ul>
+			<button id="clear_variants">Clear All Variant Forms</button>
+		</p>
+		<ul id="glossaryVariantForms"></ul>
+	</p>
+	<p>
+		<h2>Raw List (numbers and alphabetical)</h2>
+		<p>
+			<a id="download-csv" download="glossary.csv">Download CSV file</a>
+			<a id="download-json" download="glossary.json">Download JSON file</a>
+		</p>
+		<ul id="glossaryDiv"></ul>
+	</p>
+    </body>
+	<script>
+$(function() {
+	// WHY isn't this built-in. Anyway, strip off the '?', then get the right parameter
+	var projectId = location.search.substring(1).split("&").map(comp => comp.split("=")).filter(comp => comp[0] == 'projectID')[0][1];
+	$.get('/getProjectTPENServlet?projectID=' + projectId, function(payload) {
+		window.onerror = alert;
+		reloadGlossaryData(JSON.parse(payload.manifest), payload);
+	}).fail(function(response) {
+		if (response.status == 401) {
+			redirectToLogin("You must be logged in to view data. ")
+		} else {
+			alert("An error has occurred. Try reloading the page, and if the problem persists, contact the tech team.");
+		}
+	});
+
+
+	function redirectToLogin(text) {
+		if (confirm(text + " Do you wish to view the login page?")) {
+			location.href = "login.html";
+		}
+	}
+
+});
+	</script>
+</html>
