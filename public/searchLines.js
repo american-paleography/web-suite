@@ -1,4 +1,4 @@
-function searchLines(lines) {
+function searchLines() {
 	$('#search-output').empty();
 
 	var lineTmp = $('#search-line-index').val().split(',').filter(x => x);
@@ -17,7 +17,15 @@ function searchLines(lines) {
 	
 	var overall_container = $('#search-output');
 
-	var subset = lines.filter(line => {
+	$.post('/search', {search:{lineIndices, searchTextList}}, function(subset) {
+		subset.forEach(l => {
+			var para = $('<p>');
+			overall_container.append(para);
+			renderLine(l, para)
+		});
+	});
+/*
+	lines.filter(line => {
 		if (lineIndices.length > 0 && !lineIndices.includes(line.line_index_in_file)) {
 			return false;
 		}
@@ -32,11 +40,7 @@ function searchLines(lines) {
 
 		return true;
 	});
-	subset.forEach(l => {
-		var para = $('<p>');
-		overall_container.append(para);
-		renderLine(l, para)
-	});
+*/
 
 	
 
@@ -44,7 +48,8 @@ function searchLines(lines) {
 	function renderLine(line, container) {
 		var path = "/imageResize?folioNum=" + line.folio_index + "&height=2000";
 		var aabb = line.aabb;
-		var [x, y, w, h] = aabb.split(',').map(x => parseInt(x));
+		var [x, y, w, h] = [line.x, line.y, line.w, line.h];
+		/*
 		var vert_scale = parseFloat($('[name=line-height]').val() || 1)
 		y -= (vert_scale - 1)/2 * h;
 		h *= vert_scale
@@ -59,6 +64,7 @@ function searchLines(lines) {
 			container.prepend(canvas);
 		};
 		img.src = path;
+		*/
 
 		var span = $('<span>');
 		span.text(line.line_text);
@@ -71,3 +77,7 @@ $(function() {
 		$(this).parent().append('<input type="text" class="search-text">');
 	});
 })
+
+$(function() {
+	$('#do-search').on('click', searchLines);
+});
