@@ -1,6 +1,13 @@
 var express = require('express');
 var app = express();
 
+var bcrypt = require('bcrypt');
+const bcrypt_salt_rounds = 12;
+
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
+
+
 var bodyParser = require('body-parser');
 
 var fs = require('fs');
@@ -9,7 +16,21 @@ var mysql = require('mysql');
 
 var CREDS = {
 	mysql: JSON.parse(fs.readFileSync('conf/mysql.creds')),
+	session: JSON.parse(fs.readFileSync('conf/session.creds')),
 }
+
+var SECRETS = {
+	session: fs.readFileSync('conf/session.secret').toString().replace(/\s+/),
+}
+
+var sessionStore = new MySQLStore(CREDS.session);
+app.use(session({
+	key: 'concordance_plus_session',
+	secret: SECRETS.session,
+	store: sessionStore,
+	resave: false,
+	saveUninitialized: false,
+}));
 
 
 app.use(bodyParser());
@@ -81,6 +102,47 @@ app.post('/search', function(req, res) {
 	});
 	req.mysql.end();
 	//res.send(JSON.stringify(JSON.parse(req.body)))
+});
+
+app.post('/create-user', function(req, res) {
+	req.mysql.connect();
+
+	req.mysql.query('SELECT COUNT(0) AS count FROM users WHERE username = ?', [req.body.username], function(err, results, fields) {
+		if (!err && results[0].count === 0) {
+			bcrypt.hash(req.body.password, bcrypt_salt_rounds).then(function(hash) {
+				req.mysql.query('INSERT INTO users (username, pw_hash) VALUES (?, ?);', [req.body.username, hash], function(err, results, fields) {
+					if (!err) {
+						res.send({ok:true});
+					} else {
+						res.send({ok:false, msg:"error occurred"});
+						console.log(err);
+					}
+				})
+				req.mysql.end();
+			})
+		} else {
+			res.send({ok:false})
+			req.mysql.end();
+		}
+	})
+});
+
+app.post('/login', function(req, res) {
+	req.mysql.connect();
+
+	req.mysql.query('SELECT id, pw_hash FROM users WHERE username = ?', [req.body.username], function(err, results, fields) {
+		var hash = results[0].pw_hash;
+		bcrypt.compare(req.body.password, hash).then(function(valid) {
+			if (valid) {
+				req.session.user_id = results[0].id;
+				res.send({ok:true});
+			} else {
+				res.send({ok:false});
+			}
+		})
+	});
+
+	req.mysql.end();
 });
 
 app.listen(43746, () => console.log("Listening on port 43746"));
