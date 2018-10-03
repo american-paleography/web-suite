@@ -21,6 +21,12 @@ app.use(function(req, res, next) {
 	next();
 });
 
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
 app.get('/line-count', function(req, res) {
 	req.mysql.connect();
 
@@ -29,6 +35,18 @@ app.get('/line-count', function(req, res) {
 	});
 
 	req.mysql.end();
+})
+
+app.post('/error-debug', function(req, res) {
+	var mongo = require('mongodb')
+	mongo.MongoClient.connect('mongodb://localhost:27017', function(err, client) {
+		var db = client.db('concordancePlus');
+		console.log(JSON.stringify(req.body));
+		console.log(Object.keys(req.body));
+		db.collection('error_log').insertOne(req.body);
+
+		res.send("ok");
+	});
 })
 
 app.post('/search', function(req, res) {
