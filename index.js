@@ -1,3 +1,5 @@
+const assert = require('assert');
+
 var express = require('express');
 var app = express();
 
@@ -104,45 +106,42 @@ app.post('/search', function(req, res) {
 	//res.send(JSON.stringify(JSON.parse(req.body)))
 });
 
-app.post('/create-user', function(req, res) {
+app.get('/metadata-types', function(req, res) {
 	req.mysql.connect();
+	
+	var payload = {types: ['line', 'file']};
 
-	req.mysql.query('SELECT COUNT(0) AS count FROM users WHERE username = ?', [req.body.username], function(err, results, fields) {
-		if (!err && results[0].count === 0) {
-			bcrypt.hash(req.body.password, bcrypt_salt_rounds).then(function(hash) {
-				req.mysql.query('INSERT INTO users (username, pw_hash) VALUES (?, ?);', [req.body.username, hash], function(err, results, fields) {
-					if (!err) {
-						res.send({ok:true});
-					} else {
-						res.send({ok:false, msg:"error occurred"});
-						console.log(err);
-					}
-				})
-				req.mysql.end();
-			})
-		} else {
-			res.send({ok:false})
-			req.mysql.end();
-		}
+	req.mysql.query('SELECT id, name FROM line_anno_types;', function(err, results, fields){
+		payload.line_level = results;
 	})
-});
+	req.mysql.query('SELECT id, name FROM file_meta_types;', function(err, results, fields){
+		payload.file_level = results;
+	})
 
-app.post('/login', function(req, res) {
+	req.mysql.end(function(err) {
+		res.send(payload);
+	});
+})
+
+app.post('/create-metadata-type', function(req, res) {
 	req.mysql.connect();
 
-	req.mysql.query('SELECT id, pw_hash FROM users WHERE username = ?', [req.body.username], function(err, results, fields) {
-		var hash = results[0].pw_hash;
-		bcrypt.compare(req.body.password, hash).then(function(valid) {
-			if (valid) {
-				req.session.user_id = results[0].id;
-				res.send({ok:true});
-			} else {
-				res.send({ok:false});
-			}
-		})
-	});
+	req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results, fields) {
+		assert.equal(results[0].is_admin, true);
+	})
+
+	var tableMap = {
+		line: 'line_anno_types',
+		file: 'file_meta_types',
+	}
+	var table = tableMap[req.body.type];
+	req.mysql.query(`INSERT INTO ${table} (name) VALUES (?)`, [req.body.name], function(err, results, fields) {
+		
+	})
 
 	req.mysql.end();
-});
+})
+
+require('./src/auth.js').use(app);
 
 app.listen(43746, () => console.log("Listening on port 43746"));

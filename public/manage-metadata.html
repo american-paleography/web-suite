@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Concordance Plus</title>
+        <link type="text/css" href="css/custom-theme/jQuery.css" rel="Stylesheet" />
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+        <script src="https://use.fontawesome.com/4ae676603d.js"></script>
+
+	<script src="js/manage-metadata.js"></script>
+    </head>    
+
+	<body>
+		<p>
+			<h3>Create</h3>
+			<select id="type_selector"><option selected="selected" disabled="disabled" value="">select a type...</select>
+			<input id="field_name" type="text" placeholder="name/description"></input>
+			<button onclick="createType();">create</button>
+		</p>
+		<p>
+			<h3>View</h3>
+			<div id="output"></div>
+		</p>
+
+
+		<script>
+window.onerror = alert;
+		</script>
+	</body>
+</html>
