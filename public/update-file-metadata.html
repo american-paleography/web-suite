@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Concordance Plus</title>
+        <link type="text/css" href="css/custom-theme/jQuery.css" rel="Stylesheet" />
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+        <script src="https://use.fontawesome.com/4ae676603d.js"></script>
+
+	<script src="js/update-file-metadata.js"></script>
+    </head>    
+
+	<body>
+		<p>
+			<h3>Choose File</h3>
+			<select id="file-chooser">
+				<option selected="selected" disabled="disabled" value="">select a file...</select>
+			</select>
+		</p>
+		<p>
+			<h3>Metadata Fields</h3>
+			<strong id="loading">loading...</strong>
+			<div id="fields">
+				<ul id="field_list"></ul>
+			</div>
+		</p>
+
+
+		<script>
+window.onerror = alert;
+		</script>
+	</body>
+</html>

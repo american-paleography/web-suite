@@ -3,9 +3,6 @@ const assert = require('assert');
 var express = require('express');
 var app = express();
 
-var bcrypt = require('bcrypt');
-const bcrypt_salt_rounds = 12;
-
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 
@@ -41,6 +38,18 @@ app.use(express.static("public"));
 
 app.use(function(req, res, next) {
 	req.mysql = mysql.createConnection(CREDS.mysql);
+	req.mysql.upsert = function(table, obj, callback) {
+		var field_names = Object.keys(obj);
+		var values = field_names.map(f => obj[f]);
+		var sql = `
+			INSERT INTO ${table}(${field_names.join(",")})
+			VALUES (${field_names.map(x => "?").join(",")})
+			ON DUPLICATE KEY UPDATE ${field_names.map(f => `${f} = values(${f})`).join(',')}
+			;
+		`;
+
+		this.query(sql, values, callback);
+	}
 	next();
 });
 
@@ -123,10 +132,25 @@ app.get('/metadata-types', function(req, res) {
 	});
 })
 
+app.get('/file-list', function(req, res) {
+	req.mysql.connect();
+	
+	var payload = {};
+
+	req.mysql.query('SELECT id, name, project FROM files;', function(err, results, fields){
+		payload.files = results;
+	})
+
+	req.mysql.end(function(err) {
+		res.send(payload);
+	});
+});
+
 app.post('/create-metadata-type', function(req, res) {
 	req.mysql.connect();
 
 	req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results, fields) {
+		assert.ok(results[0]);
 		assert.equal(results[0].is_admin, true);
 	})
 
@@ -138,6 +162,69 @@ app.post('/create-metadata-type', function(req, res) {
 	req.mysql.query(`INSERT INTO ${table} (name) VALUES (?)`, [req.body.name], function(err, results, fields) {
 		
 	})
+
+	req.mysql.end();
+})
+
+
+app.get('/view-file/:file_id', function(req, res) {
+	req.mysql.connect();
+
+	var file_id = req.params.file_id;
+
+	var data = {};
+
+	req.mysql.query('SELECT id, name, project FROM files WHERE id = ?', [file_id], function(err, result) {
+		data.file_main = result[0];
+	})
+
+	req.mysql.query('SELECT fm.file_id as file_id, fm.type_id as type_id, fm.value as value, t.name as type_name FROM file_metas as fm LEFT JOIN file_meta_types as t ON t.id = fm.type_id WHERE fm.file_id = ?', [file_id], function(err, result) {
+		data.file_extra = result;
+	});
+
+	req.mysql.query('SELECT la.line_id as line_id, l.file_id as file_id, l.index_num as line_num, la.type_id as type_id, la.value as value, t.name as type_name FROM line_annos as la LEFT JOIN line_anno_types as t ON t.id = la.type_id LEFT JOIN `lines` as l ON l.id = la.line_id WHERE l.file_id = ?', [file_id], function(err, result) {
+		data.lines = result;
+	});
+
+	req.mysql.end(function(err) {
+		res.send(data);
+	});
+})
+
+app.post('/update-metadata-content', function(req, res) {
+	req.mysql.connect();
+
+	req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results, fields) {
+		assert.ok(results[0]);
+		assert.equal(results[0].is_admin, true);
+	})
+
+	var tableMap = {
+		line: 'line_annos',
+		file: 'file_metas',
+	}
+	var table = tableMap[req.body.type];
+
+	assert.ok(table); // avoids SQL injection if we interpolate `type` directly
+	var fk_name = req.body.type + '_id';
+
+	var type_id = req.body.type_id;
+	var value = req.body.value;
+	var fk = req.body.foreign_key;
+	// value is NOT an int (should be a string), so 0 won't come up (and "0" is truthy)
+	if (!value) {
+		req.mysql.query(`DELETE FROM ${table} WHERE ${fk_name} = ? AND type_id = ?`, [fk, type_id], function(err, results) {
+			// do nothing, for now
+		});
+	} else {
+		req.mysql.upsert(table, {
+			type_id,
+			value,
+			[fk_name]: fk,
+		}, function(err, results) {
+			// do nothing for now
+		})
+	}
 
 	req.mysql.end();
 })

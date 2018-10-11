@@ -1,5 +1,8 @@
 const assert = require('assert').strict;
 
+var bcrypt = require('bcrypt');
+const bcrypt_salt_rounds = 12;
+
 module.exports = {
 	use: function(app) {
 		app.post('/create-user', function(req, res) {
