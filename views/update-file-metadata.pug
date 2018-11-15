@@ -1,0 +1,15 @@
+extends layout.pug
+
+block page_scripts
+	script(src="js/update-file-metadata.js")
+
+block content
+	p
+		h3 Choose File
+		select#file-chooser
+			option(select="selected" disabled="disabled" value="") select a file...
+	p
+		h3 Metadata Fields
+		strong#loading loading...
+		div#fields
+			ul#field_list

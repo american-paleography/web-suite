@@ -1,0 +1,18 @@
+.sidebar {
+	border: 1px solid black;
+	margin: auto;
+	min-height: 100%;
+	padding: 1em;
+}
+
+.pane {
+	max-height: 100%;
+	overflow-y: auto;
+}
+
+.left {
+	float: left;
+}
+.right {
+	float: right;
+}

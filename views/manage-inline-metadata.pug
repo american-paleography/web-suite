@@ -1,0 +1,21 @@
+extends layout.pug
+
+block page_scripts
+	script(src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin)
+	script(src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin)
+
+	script(src="js/manage-inline-metadata.js")
+
+block content
+	p
+		h3 Add New Definition
+		input(type="text" placeholder="name" name="name")
+		input(type="text" placeholder="short form" name="short_name")
+		select(name="self_closing")
+			option(value="yes") Marks a single point
+			option(value="no") Marks a word or a range of characters
+		button#create-def Create
+	p
+		h3 Current Definitions
+		strong#loading loading...
+		div#existing_defs

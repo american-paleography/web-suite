@@ -31,6 +31,7 @@ app.use(session({
 	saveUninitialized: false,
 }));
 
+app.set('view engine', 'pug');
 
 app.use(bodyParser());
 
@@ -59,6 +60,18 @@ app.use(function(req, res, next) {
 	next();
 });
 
+app.get('/index', function(req, res) {
+	res.render('index');
+});
+
+app.get('/update-file-metadata', function(req, res) {
+	res.render('update-file-metadata');
+})
+
+app.get('/file-overview', function(req, res) {
+	res.render('file-overview');
+})
+
 app.get('/line-count', function(req, res) {
 	req.mysql.connect();
 
@@ -79,6 +92,63 @@ app.post('/error-debug', function(req, res) {
 
 		res.send("ok");
 	});
+})
+
+app.get('/dev/images/get-data', function(req, res) {
+	req.mysql.connect();
+
+	var query = 'SELECT x, y, w, h, trans.value AS text, trans_line.index_num AS line_num, file.name AS filename, proj.name AS proj_name FROM line_annos as trans LEFT JOIN `lines` AS trans_line ON trans_line.id = trans.line_id LEFT JOIN files AS file ON trans_line.file_id = file.id LEFT JOIN projects AS proj ON proj.id = file.project WHERE file.project = 5914 LIMIT 50;';
+	
+	req.mysql.query(query, [], function(err, results, fields) {
+		if (err) { console.log(err) }
+		if (results) {
+			res.set('Content-Type', 'application/json');
+			res.send(JSON.stringify(results));
+		} else {
+			res.send([]);
+		}
+	});
+
+	req.mysql.end()
+})
+
+app.get('/dev-ui/images', function(req, res) {
+	res.render('dev-ui_images');
+});
+
+app.get('/lines/simple-search', function(req, res) {
+	req.mysql.connect();
+
+	var query = 'SELECT trans.value AS text, trans_line.index_num AS line_num, file.name AS filename, proj.name AS proj_name FROM line_annos as trans LEFT JOIN `lines` AS trans_line ON trans_line.id = trans.line_id LEFT JOIN files AS file ON trans_line.file_id = file.id LEFT JOIN projects AS proj ON proj.id = file.project WHERE ';
+	var conditions = ['trans.type_id = 1'];
+	var params = [];
+	if (req.query.text) {
+		req.query.text.split(",").forEach(term => {
+			conditions.push('trans.value LIKE ?');
+			params.push(`%${term}%`);
+		});
+	}
+	if (req.query.short_tag) {
+		req.query.short_tag.split(",").forEach(term => {
+			conditions.push('trans.value LIKE ?');
+			params.push(`%<${term}>%`);
+		});
+	}
+
+	query += conditions.join(" AND ");
+	query += ";";
+	
+	req.mysql.query(query, params, function(err, results, fields) {
+		if (err) { console.log(err) }
+		if (results) {
+			res.set('Content-Type', 'text/plain');
+			res.send(results.map(row => [row.text, row.line_num, row.filename].join(" % ")).join("\n"));
+		} else {
+			res.send([]);
+		}
+	});
+
+	req.mysql.end()
 })
 
 app.post('/search', function(req, res) {
@@ -164,7 +234,54 @@ app.post('/create-metadata-type', function(req, res) {
 	})
 
 	req.mysql.end();
+	res.send({});
 })
+
+
+app.get('/manage-inline-metadata', function(req, res) {
+	res.render('manage-inline-metadata');
+})
+app.get('/inline-metadata-defs', function(req, res) {
+	req.mysql.connect();
+	
+	var payload = {};
+
+	req.mysql.query('SELECT name, short_name, self_closing FROM inline_metadata_defs;', function(err, results, fields){
+		payload.inline_metadata_defs = results;
+	})
+
+	req.mysql.end(function(err) {
+		res.send(payload);
+	});
+})
+
+app.post('/create-inline-metadata-def', function(req, res) {
+	req.mysql.connect();
+
+	req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results, fields) {
+		try {
+			assert.ok(results[0]);
+			assert.equal(results[0].is_admin, true);
+		} catch(e) {
+			req.mysql.destroy();
+		}
+	})
+
+	req.mysql.query(
+		'INSERT INTO inline_metadata_defs (name, short_name, self_closing) VALUES (?, ?, ?)', 
+		[req.body.name, req.body.short_name, req.body.self_closing],
+		function (err, results, fields) {
+			if (err) {
+				console.log(err);
+			}
+		}
+	)
+
+	req.mysql.end();
+	res.send({ok:true});
+})
+
+
 
 
 app.get('/view-file/:file_id', function(req, res) {
