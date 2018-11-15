@@ -2,7 +2,6 @@ $(function() {
 	window.onerror = alert;
 	$.get('/dev/images/get-data', function(data) {
 		holder = $('#output');
-		alert("running");
 		data.forEach(line => {
 			payload = $('<p>');
 
