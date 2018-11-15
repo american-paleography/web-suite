@@ -1,0 +1,12 @@
+extends layout.pug
+
+block page_scripts
+	script(src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin)
+	script(src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin)
+
+	script(src="/js/concordance.js")
+
+
+block content
+	h1 Concordance Plus
+	div#output

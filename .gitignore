@@ -1,3 +1,6 @@
 *.creds
 node_modules
 *.secret
+
+# transpiled/compiled JS
+public/js/concordance.js

@@ -162,7 +162,7 @@ function render_debug_info_for_line(canvas) {
 		var yMax = Math.max(...yCoords);
 
 		var newCanvas = $('<canvas style="margin:5px;" class="single-word">')[0];
-		var ret = [xMin, newCanvas];
+		var ret = {x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin, canvas: newCanvas};
 
 		var padding = 3;
 		xMin -= padding;
@@ -178,13 +178,13 @@ function render_debug_info_for_line(canvas) {
 		var wordImage = source_ctx.getImageData(xMin, yMin, newCanvas.width, newCanvas.height)
 		newCanvas.getContext('2d').putImageData(wordImage, 0, 0)
 		return ret;
-	}).filter(_ => _);
-	children.sort((a,b) => a[0] - b[0]).forEach(pair => {
-		holder.appendChild(pair[1]);
+	}).filter(_ => _).filter(word => word.w * word.h > 5 * 5).filter(word => word.h > 10 || (word.yMin > 0 && word.yMax < canvas.height));
+	children.sort((a,b) => a.x - b.x).forEach(pair => {
+		holder.appendChild(pair.canvas);
 	})
 	canvas.parentNode.appendChild(holder);
 
-	console.log(gids);
+	return children;
 }
 
 function convert_to_greyscale(image) {

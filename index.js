@@ -116,6 +116,10 @@ app.get('/dev-ui/images', function(req, res) {
 	res.render('dev-ui_images');
 });
 
+app.get('/concordance', function(req, res) {
+	res.render('concordance');
+});
+
 app.get('/lines/simple-search', function(req, res) {
 	req.mysql.connect();
 
