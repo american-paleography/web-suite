@@ -7,6 +7,29 @@ block page_scripts
 	script(src="/js/concordance.js")
 
 
+
 block content
 	h1 Concordance Plus
-	div#output
+	div#side-toolbar
+		span tools go here
+		p
+			label(for="line-height") Line Height
+			input(type="number" name="line-height" value="1" min="0.1" step="0.1")
+		p
+			label(for="line-width") Line Width
+			input(type="number" name="line-height" value="1.2" min="0.1" step="0.1")
+		p
+			h3 Search Tol
+			ul
+				li
+					label Line Index (comma-separated)
+					input#search-line-index
+				li
+					label Text (verbatim)
+					button#add-search-text add text filter
+					input.search-text
+				li
+					label Unclear lines only
+					input#require-unclear(type="checkbox")
+			button#do-search Do Search
+	div#concordance-output

@@ -16,3 +16,11 @@
 .right {
 	float: right;
 }
+
+#side-toolbar {
+	float: left;
+}
+#concordance-output {
+	height: 90%;
+	overflow-y: scroll;
+}
