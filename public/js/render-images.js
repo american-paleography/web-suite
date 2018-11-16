@@ -176,6 +176,19 @@ function render_debug_info_for_line(canvas) {
 			return;
 		}
 		var wordImage = source_ctx.getImageData(xMin, yMin, newCanvas.width, newCanvas.height)
+		for (var y = 0; y < newCanvas.height; ++y) {
+			for (var x = 0; x < newCanvas.width; ++x) {
+				var offset = x * 4 + y * newCanvas.width * 4;
+				wordImage.data[offset+3] = 0;
+			}
+		}
+		coords.forEach(c => {
+			var [x,y] = c;
+			x -= xMin;
+			y -= yMin;
+			var offset = x * 4 + y * newCanvas.width * 4;
+			wordImage.data[offset+3] = 255;
+		})
 		newCanvas.getContext('2d').putImageData(wordImage, 0, 0)
 		return ret;
 	}).filter(_ => _).filter(word => word.w * word.h > 5 * 5).filter(word => word.h > 10 || (word.yMin > 0 && word.yMax < canvas.height));
