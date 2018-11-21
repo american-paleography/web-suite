@@ -43,6 +43,26 @@ $(function() {
 		const RIGHT = 39;
 	})
 
+	$('#words-output').on('click', 'button.accept', function() {
+		var img = $(this).closest('tr').find('img')[0];
+		var word = $(this).closest('tr').find('input[type=text]').val();
+		var word_index = $(this).closest('tr').find('input.word_index').val();
+		var line_id = $(this).closest('tr').find('input.line_id').val();
+		var payload = {
+			x: img.dataset.left,
+			y: img.dataset.top,
+			width: img.width,
+			height: img.height,
+			image_data_b64: img.src,
+			word: word,
+			word_index: word_index,
+			line_id: line_id,
+		}
+		$.post('/ajax/image-slicing/approve', payload, function(data) {
+			alert(JSON.stringify(data));
+		})
+	});
+
 	$('#line-list').on('click', 'li', function() {
 		var i = $(this).data('index');
 		current_line = i;
@@ -63,9 +83,16 @@ $(function() {
 
 		//$(domContainer).empty();
 
-		loadLineImage(line.path, line.data, $(tmp), function() {
+		loadLineImage(line.path, line.data, $(tmp), function(left, top) {
 			console.log("split line into word images");
-			react_el.setState(function() { return {text: line.data.text, source: tmp} });
+			react_el.setState(function() {
+				return {
+					offset: {x: left, y: top},
+					text: line.data.text,
+					source: tmp,
+					line_id: line.data.line_id,
+				};
+			});
 		})
 	}
 })
@@ -92,8 +119,11 @@ class WordsInLineWidget extends React.Component {
 			<tr class="trans-word">
 				<td>
 					<button class="accept">Accept</button>
+
 				</td>
 				<td class={"word-holder-" + i}>
+					<input type="hidden" class="word_index" value={i} />
+					<input type="hidden" class="line_id" value={this.state.line_id} />
 					<input type="text" value={word}></input>
 					<hr/>
 					<img class="word-image" />
@@ -106,12 +136,14 @@ class WordsInLineWidget extends React.Component {
 
 		var sourceCanvas = this.state.source;
 
-		setTimeout(function() {
+		setTimeout(() => {
 			var splitter = new LineSplitter(sourceCanvas);
 			var items = splitter.map_to_words(words);
 			console.log(items);
 			items.forEach((data, i) => {
 				var copyTo = $('.word-holder-'+i+' img')[0];
+				copyTo.dataset.left = data.chunk.x + this.state.offset.x;
+				copyTo.dataset.top = data.chunk.y + this.state.offset.y;
 				copyTo.src = data.chunk.canvas.toDataURL();
 			})
 		}, 200);

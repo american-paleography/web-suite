@@ -153,6 +153,52 @@ app.get('/ajax/image-slicing/data/:file_id', function(req, res) {
 		res.send(JSON.stringify(output));
 	})
 })
+app.post('/ajax/image-slicing/approve', function(req, res) {
+	req.mysql.connect();
+
+	req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results, fields) {
+		try {
+			assert.ok(results[0]);
+			assert.equal(results[0].is_admin, true);
+		} catch(e) {
+			req.mysql.destroy();
+		}
+	})
+
+	var path_component = [req.body.line_id, req.body.word_index, req.body.word].join("_") + ".png";
+	var path_base = "public/word_images/";
+
+	var fields = {
+		x: req.body.x,
+		y: req.body.y,
+		width: req.body.width,
+		height: req.body.height,
+		filepath: path_component,
+		word: req.body.word,
+		word_index_in_list: req.body.word_index,
+		line_id: req.body.line_id,
+	};
+	var field_keys = Object.keys(fields);
+	var insert_query = `INSERT INTO word_images (${field_keys.join(", ")}) VALUES (${field_keys.map(_ => "?").join(", ")})`;
+	req.mysql.query(
+		insert_query,
+		field_keys.map(key => fields[key]),
+		function (err, results, fields) {
+			if (err) {
+				console.log(err);
+				res.send({ok:false});
+				return;
+			}
+			var b64 = req.body.image_data_b64;
+			b64 = b64.substr(b64.indexOf(','));
+			var buffer = Buffer.from(b64, 'base64');
+			fs.writeFile(path_base + path_component, buffer);
+			res.send({ok:true});
+		}
+	)
+
+	req.mysql.end();
+});
 
 app.get('/lines/simple-search', function(req, res) {
 	req.mysql.connect();

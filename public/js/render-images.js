@@ -13,7 +13,7 @@ function loadLineImage(path, {x,y,w,h},  canvas, callback=null) {
 			var ctx = canvas[0].getContext('2d');
 			ctx.drawImage(img, x * scale, y * scale, w * scale, h * scale, 0, 0, w, h);
 			if (callback) {
-				callback();
+				callback(x, y);
 			}
 		};
 		img.crossOrigin = 'Anonymous';
