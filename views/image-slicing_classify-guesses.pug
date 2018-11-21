@@ -1,0 +1,25 @@
+extends layout.pug
+
+block page_scripts
+	script(src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin)
+	script(src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin)
+
+	script(src="/js/render-images.js")
+	script(src="/js/classify-image-guesses.js")
+
+block content
+	div#classifier
+		div#header
+			select.select-project
+				option(selected="selected" disabled="disabled") Choose a project
+				each project in projects
+					option(value=project.id)= project.name
+			each project in projects
+				select.select-page(data-project=project.id)
+					option(selected="selected" disabled="disabled") Choose a page
+					each file in files.filter(f => f.project == project.id)
+						option(value=file.id data-file-path='http://image-store.tpen-demo.americanpaleography.org/' + project.name + "/" + file.name)= file.name
+		div#output
+			div.sidebar.classifier-output-pane
+				ul#line-list
+			div#words-output.classifier-output-pane

@@ -2,7 +2,11 @@
 	border: 1px solid black;
 	margin: auto;
 	min-height: 100%;
-	padding: 1em;
+	padding: 0 1em;
+}
+#classifier .sidebar {
+	width: 300px;
+	float: left;
 }
 
 .pane {
@@ -23,4 +27,37 @@
 #concordance-output {
 	height: 90%;
 	overflow-y: scroll;
+}
+
+
+#classifier #main-image {
+	max-height: 90%;
+	max-width: 90%;
+}
+
+.trans-word {
+	text-align: center;
+}
+
+#classifier table.image-grid {
+	border-collapse: collapse;
+}
+#classifier table.image-grid td {
+	border: double grey;
+	padding: 1em;
+}
+#classifier table.image-grid td input {
+	text-align: center;
+}
+
+#classifier #output {
+	height: 95%;
+}
+.classifier-output-pane {
+	height: 90%;
+	overflow-y: scroll;
+}
+
+.selected-line {
+	font-weight: bold;
 }

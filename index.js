@@ -120,6 +120,40 @@ app.get('/concordance', function(req, res) {
 	res.render('concordance');
 });
 
+app.get('/image-slicing/classify-guesses', function(req, res) {
+	req.mysql.connect();
+	var locals = {};
+
+	req.mysql.query("SELECT * FROM projects", function(err, results, fields) {
+		locals.projects = results;
+	})
+
+	req.mysql.query("SELECT * FROM files", function(err, results, fields) {
+		locals.files = results;
+	})
+
+	req.mysql.end(function() {
+		res.render('image-slicing_classify-guesses', locals);
+	})
+})
+app.get('/ajax/image-slicing/data/:file_id', function(req, res) {
+	req.mysql.connect();
+
+	var output = {};
+
+	var file_id = req.params.file_id;
+
+	req.mysql.query("SELECT x, y, w, h, `line`.id as line_id, `line`.index_num as line_num, trans.value as text FROM `lines` as `line` LEFT JOIN line_annos as trans ON trans.line_id = `line`.id WHERE `line`.file_id = ? AND trans.type_id = 1", [file_id], function(err, results, fields) {
+		if (err) { console.log(err) }
+		output.lines = results;
+	});
+
+	req.mysql.end(function() {
+		res.set('Content-Type', 'application/json');
+		res.send(JSON.stringify(output));
+	})
+})
+
 app.get('/lines/simple-search', function(req, res) {
 	req.mysql.connect();
 

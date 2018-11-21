@@ -19,7 +19,7 @@ $(function() {
 
 			loadLineImage(path, line, canvas, function() {
 				setTimeout(function() {
-					var chunks = render_debug_info_for_line(canvas[0]);
+					var chunks = new LineSplitter(canvas[0]).subimages;
 					var words = line.text.split(/\s+/);
 
 					// VERY naive attempt at matching images to words

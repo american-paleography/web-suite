@@ -22,72 +22,164 @@ function loadLineImage(path, {x,y,w,h},  canvas, callback=null) {
 
 
 
+class LineSplitter {
+	constructor(canvas) {
+		this.fg = 3;
+		this.bg = 0;
 
-const bg = 0;
-const fg = 3;
+		this.source_canvas = canvas;
+		this.line_width = this.source_canvas.width;
+		this.line_height = this.source_canvas.height;
+		this.source_ctx = this.source_canvas.getContext('2d');
+		this.source_data = this.source_ctx.getImageData(0, 0, this.line_width, this.line_height);
 
-function render_debug_info_for_line(canvas) {
-	var image_data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
-	var px = convert_to_greyscale(image_data);
-	
-	var newImage = canvas.getContext('2d').createImageData(image_data);
-	console.log(newImage.width, newImage.height);
+		this.pixels = this.convert_to_greyscale();
 
-	var source_ctx = canvas.getContext('2d');
+		this.pxToGroup = new Array(this.pixels.length);
 
-	var colors = [
-		[0,0,0],
-		[255,0,0],
-		[0,255,0],
-		[0,0,255],
-		[180,0,180],
-		//[180,180,0],
-		//[0,180,180],
-		//[120,120,120],
-	]
-	var groups = new Array(px.length);
-	var gids = [];
-	var nextGroup = 1;
+		this.groups = [];
+		this.nextGroup = 1;
 
-	var inprogCount = 5;
-	function checkAdjacent(j, num, x, y, dx, dy) {
+		this.scan_for_groups();
+		this.subimages = this.split_by_groups();
+	}
+
+
+	map_to_words(words) {
+		var chunks = this.subimages;
+
+		// VERY naive attempt at matching images to words
+		if (chunks.length > words.length) {
+			// naive approach: discard the narrowest images, since they're probably a mistaken crop
+			var widths = chunks.map(c => c.canvas.width).sort((a,b) => a-b);
+			var excess = chunks.length - words.length;
+			var trimThreshold = widths[excess];
+			chunks = chunks.filter(c => c.canvas.width >= trimThreshold);
+		}
+
+		var guesses = [];
+		
+		for (var i = 0; i < words.length; ++i) {
+			var guess = {};
+			guess.text = words[i];
+			guess.chunk = chunks[i];
+
+			guesses.push(guess);
+		}
+
+		return guesses;
+	}
+
+
+	scan_for_groups() {
+		for (var i = 0; i < this.pixels.length; ++i) {
+			if (this.pixels[i] == this.bg) {
+				this.pxToGroup[i] = 0;
+				continue;
+			}
+			if (this.pxToGroup[i]) {
+				continue;
+			}
+			this.checkSpot(i);
+		}
+	}
+
+	split_by_groups() {
+		var children = this.groups.map(group => {
+			if (!group) {
+				return;
+			};
+			var coords = group.map(i => {
+				var x = i % this.line_width;
+				var y = Math.floor(i / this.line_width);
+				return [x,y];
+			})
+			var xCoords = coords.map(c => c[0]);
+			var yCoords = coords.map(c => c[1]);
+
+			var xMin = Math.min(...xCoords);
+			var xMax = Math.max(...xCoords);
+			var yMin = Math.min(...yCoords);
+			var yMax = Math.max(...yCoords);
+
+			var newCanvas = $('<canvas class="single-word">')[0];
+
+			var padding = 3;
+			xMin -= padding;
+			yMin -= padding;
+			xMax += padding;
+			yMax += padding;
+
+			newCanvas.height = yMax - yMin;
+			newCanvas.width = xMax - xMin;
+			if (newCanvas.width == 0 || newCanvas.height == 0) {
+				return;
+			}
+			var wordImage = this.source_ctx.getImageData(xMin, yMin, newCanvas.width, newCanvas.height)
+			for (var y = 0; y < newCanvas.height; ++y) {
+				for (var x = 0; x < newCanvas.width; ++x) {
+					var offset = x * 4 + y * newCanvas.width * 4;
+					wordImage.data[offset+3] = 0;
+				}
+			}
+			coords.forEach(c => {
+				var [x,y] = c;
+				x -= xMin;
+				y -= yMin;
+				var offset = x * 4 + y * newCanvas.width * 4;
+				wordImage.data[offset+3] = 255;
+			})
+			newCanvas.getContext('2d').putImageData(wordImage, 0, 0)
+
+			return  {x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin, canvas: newCanvas};
+		});
+		
+		children = children.filter(_ => _).filter(word => word.w * word.h > 5 * 5);
+		children = children.filter(word => word.h > 10 || (word.yMin > 0 && word.yMax < canvas.height));
+		children.sort((a,b) => a.x - b.x);
+
+		return children;
+	}
+
+	checkAdjacent(j, num, x, y, dx, dy) {
 		x += dx;
 		y += dy;
-		if (x < 0 || x >= newImage.width || y < 0 || y >= newImage.height) {
+		if (x < 0 || x >= this.line_width || y < 0 || y >= this.line_height) {
 			return;
 		}
 		j += dx;
-		j += dy * newImage.width;
-		if (px[j] == fg && groups[j] != num) {
+		j += dy * this.line_width;
+		if (this.pixels[j] == this.fg && this.pxToGroup[j] != num) {
 			// uh, we need to bulk-update something, then... (flood fill, basically)
-			if (groups[j] && groups[j] != num) {
+			if (this.pxToGroup[j] && this.pxToGroup[j] != num) {
 				/*
-				var oldGroup = gids[groups[j]];
+				var oldGroup = gids[this.pxToGroup[j]];
 				if (inprogCount-- > 0) {
-					console.log(j, x, y, oldGroup, num, groups[j]);
+					console.log(j, x, y, oldGroup, num, this.pxToGroup[j]);
 					renderTestCanvas();
 				}
-				oldGroup.forEach(id => groups[id] = num);
+				oldGroup.forEach(id => this.pxToGroup[id] = num);
 				*/
 			}
-			groups[j] = num;
-			checkSpot(j);
+			this.pxToGroup[j] = num;
+			this.checkSpot(j);
 		}
 	}
-	function checkSpot(i) {
-		var x = i % newImage.width;
-		var y = Math.floor(i / newImage.width);
-		var offset = x * 4 + y * newImage.width * 4;
+
+	checkSpot(i) {
+		var x = i % this.line_width;
+		var y = Math.floor(i / this.line_width);
+		var offset = x * 4 + y * this.line_width * 4;
 		var gNum;
-		if (groups[i]) {
-			gNum = groups[i];
+		if (this.pxToGroup[i]) {
+			gNum = this.pxToGroup[i];
 		} else {
-			gNum = nextGroup;
-			groups[i] = gNum;
-			gids[gNum] = [];
-			nextGroup += 1;
+			gNum = this.nextGroup;
+			this.pxToGroup[i] = gNum;
+			this.groups[gNum] = [];
+			this.nextGroup += 1;
 		}
-		gids[gNum].push(i);
+		this.groups[gNum].push(i);
 
 		var rad = 3;
 		for (var dx = -rad; dx <= rad; ++dx) {
@@ -95,142 +187,46 @@ function render_debug_info_for_line(canvas) {
 				if (dx == 0 && dy == 0) {
 					continue;
 				}
-				checkAdjacent(i, gNum, x, y, dx, dy);
+				this.checkAdjacent(i, gNum, x, y, dx, dy);
 			}
 		}
 	}
-	for (var i = 0; i < px.length; ++i) {
-		if (px[i] == bg) {
-			groups[i] = 0;
-			continue;
-		}
-		if (groups[i]) {
-			continue;
-		}
-		checkSpot(i);
-	}
+	
 
-	renderTestCanvas();
+	convert_to_greyscale() {
+		var image = this.source_data;
+		var rowLen = image.width * 4;
+		var length = rowLen * image.height;
+		var levels = [];
 
-	function renderTestCanvas() {
-		for (var i = 0; i < px.length; ++i) {
-			var x = i % newImage.width;
-			var y = Math.floor(i / newImage.width);
-			var offset = x * 4 + y * newImage.width * 4;
-			if (px[i] == fg && groups[i]) {
-				var color = colors[groups[i] % colors.length];
-				newImage.data[offset+0] = color[0];
-				newImage.data[offset+1] = color[1];
-				newImage.data[offset+2] = color[2];
-			} else {
-				newImage.data[offset+0] = 255
-				newImage.data[offset+1] = 255
-				newImage.data[offset+2] = 255
-			}
-			newImage.data[offset+3] = 255;
+		var pixelCount = image.width * image.height
+		var byteTotals = 0;
+		for (var i = 0; i < pixelCount; ++i) {
+			byteTotals += image.data[i * 4 + 0];
+			byteTotals += image.data[i * 4 + 1];
+			byteTotals += image.data[i * 4 + 2];
 		}
 
-		console.log(px);
+		var imageAverage = byteTotals / (pixelCount * 3);
 
-		var holder = $('<p style="border-bottom: 1px dotted black">')[0];
-		holder.innerText = "flood-fill debug render:";
-		var newCanvas = $('<canvas style="margin:5px;" class="single-word">')[0];
-		newCanvas.height = newImage.height;
-		newCanvas.width = newImage.width;
-		newCanvas.getContext('2d').putImageData(newImage, 0, 0)
-		holder.appendChild(newCanvas);
-		canvas.parentNode.appendChild(holder);
-	}
 
-	var holder = $('<p style="border-bottom: 1px dotted black">')[0];
-	holder.innerText = "words (flood fill):";
-	var children = gids.map(group => {
-		if (!group) {
-			return;
-		};
-		var coords = group.map(i => {
-			var x = i % newImage.width;
-			var y = Math.floor(i / newImage.width);
-			return [x,y];
-		})
-		var xCoords = coords.map(c => c[0]);
-		var yCoords = coords.map(c => c[1]);
-
-		var xMin = Math.min(...xCoords);
-		var xMax = Math.max(...xCoords);
-		var yMin = Math.min(...yCoords);
-		var yMax = Math.max(...yCoords);
-
-		var newCanvas = $('<canvas style="margin:5px;" class="single-word">')[0];
-		var ret = {x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin, canvas: newCanvas};
-
-		var padding = 3;
-		xMin -= padding;
-		yMin -= padding;
-		xMax += padding;
-		yMax += padding;
-
-		newCanvas.height = yMax - yMin;
-		newCanvas.width = xMax - xMin;
-		if (newCanvas.width == 0 || newCanvas.height == 0) {
-			return;
-		}
-		var wordImage = source_ctx.getImageData(xMin, yMin, newCanvas.width, newCanvas.height)
-		for (var y = 0; y < newCanvas.height; ++y) {
-			for (var x = 0; x < newCanvas.width; ++x) {
-				var offset = x * 4 + y * newCanvas.width * 4;
-				wordImage.data[offset+3] = 0;
+		for (var y = 0; y < image.height; ++y) {
+			var minLevel = 255;
+			
+			for (var x = 0; x < image.width; ++x) {
+				var pxBase = rowLen * y + x * 4;
+				if (image.data[pxBase+3] == 0) {
+					levels.push(this.bg);
+				} else {
+					var [r, g, b] = [image.data[pxBase+0],image.data[pxBase+1], image.data[pxBase+2]];
+					var avg = (r + g + b)/3;
+					var level = avg < imageAverage ? this.fg : this.bg;
+					levels.push(level);
+				}
 			}
 		}
-		coords.forEach(c => {
-			var [x,y] = c;
-			x -= xMin;
-			y -= yMin;
-			var offset = x * 4 + y * newCanvas.width * 4;
-			wordImage.data[offset+3] = 255;
-		})
-		newCanvas.getContext('2d').putImageData(wordImage, 0, 0)
-		return ret;
-	}).filter(_ => _).filter(word => word.w * word.h > 5 * 5).filter(word => word.h > 10 || (word.yMin > 0 && word.yMax < canvas.height));
-	children.sort((a,b) => a.x - b.x).forEach(pair => {
-		holder.appendChild(pair.canvas);
-	})
-	canvas.parentNode.appendChild(holder);
 
-	return children;
+		return levels;
+	}
 }
 
-function convert_to_greyscale(image) {
-	var rowLen = image.width * 4;
-	var length = rowLen * image.height;
-	var levels = [];
-
-	var pixelCount = image.width * image.height
-	var byteTotals = 0;
-	for (var i = 0; i < pixelCount; ++i) {
-		byteTotals += image.data[i * 4 + 0];
-		byteTotals += image.data[i * 4 + 1];
-		byteTotals += image.data[i * 4 + 2];
-	}
-
-	var imageAverage = byteTotals / (pixelCount * 3);
-
-
-	for (var y = 0; y < image.height; ++y) {
-		var minLevel = 255;
-		
-		for (var x = 0; x < image.width; ++x) {
-			var pxBase = rowLen * y + x * 4;
-			if (image.data[pxBase+3] == 0) {
-				levels.push(bg);
-			} else {
-				var [r, g, b] = [image.data[pxBase+0],image.data[pxBase+1], image.data[pxBase+2]];
-				var avg = (r + g + b)/3;
-				var level = avg < imageAverage ? fg : bg;
-				levels.push(level);
-			}
-		}
-	}
-
-	return levels;
-}
