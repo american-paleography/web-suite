@@ -165,7 +165,7 @@ app.post('/ajax/image-slicing/approve', function(req, res) {
 		}
 	})
 
-	var path_component = [req.body.line_id, req.body.word_index, req.body.word].join("_") + ".png";
+	var path_component = encodeURIComponent([req.body.line_id, req.body.word_index, req.body.word].join("_")) + ".png";
 	var path_base = "public/word_images/";
 
 	var fields = {
