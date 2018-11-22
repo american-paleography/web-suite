@@ -99,6 +99,19 @@ $(function() {
 
 const e = React.createElement;
 
+class SimpleTextInput extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = { value: this.props.value };
+	}
+
+	render() {
+		return (
+			<input type="text" value={this.state.value} onChange={e => this.setState({value: e.target.value})} />
+		)
+	}
+}
+
 class WordsInLineWidget extends React.Component {
 	constructor(props) {
 		super(props);
@@ -124,12 +137,12 @@ class WordsInLineWidget extends React.Component {
 				<td class={"word-holder-" + i}>
 					<input type="hidden" class="word_index" value={i} />
 					<input type="hidden" class="line_id" value={this.state.line_id} />
-					<input type="text" value={word}></input>
+					<SimpleTextInput value={word} />
 					<hr/>
 					<img class="word-image" />
 				</td>
 				<td>
-					<button class="reject">Reject</button>
+					<button class="reject" disabled="disabled">Reject</button>
 				</td>
 			</tr>
 		))
