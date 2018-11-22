@@ -32,6 +32,10 @@ module.exports = {
 			req.mysql.connect();
 
 			req.mysql.query('SELECT id, pw_hash FROM users WHERE username = ?', [req.body.username], function(err, results, fields) {
+				if (!results[0]) {
+					res.send({ok:false});
+					return false;
+				}
 				var hash = results[0].pw_hash;
 				bcrypt.compare(req.body.password, hash).then(function(valid) {
 					if (valid) {
