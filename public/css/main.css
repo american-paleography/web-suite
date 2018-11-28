@@ -39,10 +39,14 @@
 	text-align: center;
 }
 
-#classifier table.image-grid {
+#classifier table.image-grid,
+table.bordered
+{
 	border-collapse: collapse;
 }
-#classifier table.image-grid td {
+#classifier table.image-grid td,
+table.bordered td
+{
 	border: double grey;
 	padding: 1em;
 }

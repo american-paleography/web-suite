@@ -1,0 +1,12 @@
+extends layout.pug
+
+block page_scripts
+
+block content
+	table.bordered
+		each entry in word_entries
+			tr
+				td= entry.text
+				td
+					img(src=encodeURIComponent(entry.src))
+				td= entry.src

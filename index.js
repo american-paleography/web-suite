@@ -200,6 +200,22 @@ app.post('/ajax/image-slicing/approve', function(req, res) {
 	req.mysql.end();
 });
 
+app.get('/all-word-images', function(req, res) {
+	req.mysql.connect();
+	var locals = {};
+
+	var path_base = "/word_images/";
+
+	req.mysql.query("SELECT word AS text, filepath FROM word_images", function(err, results, fields) {
+		results.forEach(r => r.src = path_base + r.filepath);
+		locals.word_entries = results;
+	})
+
+	req.mysql.end(function() {
+		res.render('all-word-images', locals);
+	})
+})
+
 app.get('/lines/simple-search', function(req, res) {
 	req.mysql.connect();
 
