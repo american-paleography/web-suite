@@ -99,10 +99,18 @@ $(function() {
 
 const e = React.createElement;
 
+window.onerror = alert;
 class SimpleTextInput extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = { value: this.props.value };
+	}
+
+	componentWillReceiveProps(props) {
+		var oldValue = this.props.value;
+		if (oldValue != props.value) {
+			this.setState({value: props.value});
+		}
 	}
 
 	render() {
