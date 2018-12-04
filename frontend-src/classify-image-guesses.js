@@ -32,6 +32,8 @@ $(function() {
 				sidebar.append(entry);
 			})
 
+			previewFullPage();
+
 			selectCurrentLine();
 		})
 	})
@@ -72,9 +74,17 @@ $(function() {
 	const domContainer = document.querySelector('#words-output');
 	window.react_el = ReactDOM.render(e(WordsInLineWidget), domContainer); 
 
+	window.onerror = alert;
+	function previewFullPage() {
+		var line = li_lines[current_line]
+		
+		var canvas = $('#current-page-image');
+
+		highlightLineBoundaries(line.path, li_lines.map(l => l.data), canvas);
+	}
 	function selectCurrentLine() {
 		var line = li_lines[current_line]
-		var tmp = $("<canvas>")[0];
+		var tmp = $("#single-line-image")[0];
 
 		$('.selected-line').removeClass('selected-line');
 		$(line.el).addClass('selected-line');

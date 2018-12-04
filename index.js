@@ -448,4 +448,6 @@ app.post('/update-metadata-content', function(req, res) {
 
 require('./src/auth.js').use(app);
 
+require('./src/image-browsing.js').use(app)
+
 app.listen(43746, () => console.log("Listening on port 43746"));

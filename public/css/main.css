@@ -8,6 +8,15 @@
 	width: 300px;
 	float: left;
 }
+#classifier .rightbar {
+	width: 300px;
+	height: 90%;
+	float: right;
+	overflow: auto;
+}
+#current-page-image {
+	max-width: 400%;
+}
 
 .pane {
 	max-height: 100%;
@@ -64,4 +73,18 @@ table.bordered td
 
 .selected-line {
 	font-weight: bold;
+}
+#line-list {
+	list-style-type: decimal;
+}
+
+
+.pos-holder {
+	position: relative;
+}
+
+.layered-canvas{
+    position: absolute;
+    top: 10px;
+    left: 10px;
 }

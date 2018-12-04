@@ -1,0 +1,21 @@
+extends ../layout.pug
+
+block page_scripts
+	script(src="/js/render-images.js")
+
+block content
+	button(onclick="setupPolygonCutter('#cutter', '#source')") Polygon Cutter
+
+	div#cutter
+		="POLYGON CUTTER:"
+		div
+			canvas#output-canvas
+			canvas#buffer(style="display: none;")
+		div.pos-holder
+			canvas.layered-canvas#bg-canvas
+			canvas.layered-canvas#ui-overlay
+
+	div#source-image
+		="ORIGINAL IMAGE:"
+		div.pos-holder
+			img#source.layered-canvas(src=`http://image-store.tpen-demo.americanpaleography.org/${proj}/${page}` crossorigin="Anonymous")

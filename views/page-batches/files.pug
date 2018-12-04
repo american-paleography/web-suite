@@ -1,0 +1,10 @@
+extends ../layout.pug
+
+block page_scripts
+
+block content
+	ul
+		each file in files
+			li
+				a(href=`/page-batches/${proj}/details/${file}`)
+					=file
