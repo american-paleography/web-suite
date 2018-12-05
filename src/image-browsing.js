@@ -33,5 +33,28 @@ module.exports = {
 				res.render('page-batches/details', locals);
 			});
 		})
+
+		app.get('/ajax/page-id-for/:proj_name/:page_name', function(req, res) {
+			req.mysql.connect();
+
+			req.mysql.query('SELECT f.id as file_id FROM files AS f LEFT JOIN projects AS p ON p.id = f.project WHERE p.name = ? AND f.name = ?', [req.params.proj_name, req.params.page_name], function(err, results) {
+				if (err || results.length == 0) {
+					res.send({ok:false});
+				} else {
+					res.send({ok:true, id: results[0].file_id})
+				}
+			})
+
+			req.mysql.end();
+		})
+
+		app.post('/ajax/save-cut-polygon', function(req, res) {
+			var {file_id, points} = req.body;
+
+			req.mysql.query('INSERT INTO cut_polygons (file_id, points) VALUES (?, ?)', [file_id, JSON.stringify(points)], function(err, results) {
+			});
+
+			req.mysql.end();
+		})
 	},
 }

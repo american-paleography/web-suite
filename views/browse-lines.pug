@@ -1,0 +1,20 @@
+extends layout.pug
+
+block page_scripts
+	script(src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin)
+	script(src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin)
+
+	script(src="/js/line-display.js")
+	script(src="/js/searcher.js")
+
+	script(src="/js/ctrl-browse-lines.js")
+
+
+block content
+	p
+		div#search-fields
+			input(type="text" name="line-text" placeholder="text (word or phrase)")
+	p
+		button#do-search Search
+	hr
+	div#concordance-output

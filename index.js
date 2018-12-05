@@ -94,23 +94,6 @@ app.post('/error-debug', function(req, res) {
 	});
 })
 
-app.get('/dev/images/get-data', function(req, res) {
-	req.mysql.connect();
-
-	var query = 'SELECT x, y, w, h, trans.value AS text, trans_line.index_num AS line_num, file.name AS filename, proj.name AS proj_name FROM line_annos as trans LEFT JOIN `lines` AS trans_line ON trans_line.id = trans.line_id LEFT JOIN files AS file ON trans_line.file_id = file.id LEFT JOIN projects AS proj ON proj.id = file.project WHERE file.project = 5914 LIMIT 50;';
-	
-	req.mysql.query(query, [], function(err, results, fields) {
-		if (err) { console.log(err) }
-		if (results) {
-			res.set('Content-Type', 'application/json');
-			res.send(JSON.stringify(results));
-		} else {
-			res.send([]);
-		}
-	});
-
-	req.mysql.end()
-})
 
 app.get('/dev-ui/images', function(req, res) {
 	res.render('dev-ui_images');
@@ -216,74 +199,9 @@ app.get('/all-word-images', function(req, res) {
 	})
 })
 
-app.get('/lines/simple-search', function(req, res) {
-	req.mysql.connect();
-
-	var query = 'SELECT trans.value AS text, trans_line.index_num AS line_num, file.name AS filename, proj.name AS proj_name FROM line_annos as trans LEFT JOIN `lines` AS trans_line ON trans_line.id = trans.line_id LEFT JOIN files AS file ON trans_line.file_id = file.id LEFT JOIN projects AS proj ON proj.id = file.project WHERE ';
-	var conditions = ['trans.type_id = 1'];
-	var params = [];
-	if (req.query.text) {
-		req.query.text.split(",").forEach(term => {
-			conditions.push('trans.value LIKE ?');
-			params.push(`%${term}%`);
-		});
-	}
-	if (req.query.short_tag) {
-		req.query.short_tag.split(",").forEach(term => {
-			conditions.push('trans.value LIKE ?');
-			params.push(`%<${term}>%`);
-		});
-	}
-
-	query += conditions.join(" AND ");
-	query += ";";
-	
-	req.mysql.query(query, params, function(err, results, fields) {
-		if (err) { console.log(err) }
-		if (results) {
-			res.set('Content-Type', 'text/plain');
-			res.send(results.map(row => [row.text, row.line_num, row.filename].join(" % ")).join("\n"));
-		} else {
-			res.send([]);
-		}
-	});
-
-	req.mysql.end()
+app.get('/browse-lines', function(req, res) {
+	res.render('browse-lines');
 })
-
-app.post('/search', function(req, res) {
-	req.mysql.connect();
-
-	var search = req.body.search;
-
-	var query = 'SELECT trans.value AS text FROM line_annos as trans LEFT JOIN `lines` AS trans_line ON trans_line.id = trans.line_id WHERE ';
-	var conditions = ['trans.type_id = 1'];
-	var params = [];
-	if (search.lineIndices.length > 0) {
-		conditions.push('trans_line.index_num IN (?)');
-		params.push(search.lineIndices);
-	}
-	search.searchTextList.forEach(term => {
-		conditions.push('trans.value LIKE ?');
-		params.push(`%${term}%`);
-	});
-
-	query += conditions.join(" AND ");
-	query += ";";
-	
-	console.log(query);
-
-	req.mysql.query(query, params, function(err, results, fields) {
-		if (err) { console.log(err) }
-		if (results) {
-			res.send(results.map(row => ({line_text: row.text})));
-		} else {
-			res.send([]);
-		}
-	});
-	req.mysql.end();
-	//res.send(JSON.stringify(JSON.parse(req.body)))
-});
 
 app.get('/metadata-types', function(req, res) {
 	req.mysql.connect();
@@ -449,5 +367,6 @@ app.post('/update-metadata-content', function(req, res) {
 require('./src/auth.js').use(app);
 
 require('./src/image-browsing.js').use(app)
+require('./src/line-data-access.js').use(app);
 
 app.listen(43746, () => console.log("Listening on port 43746"));

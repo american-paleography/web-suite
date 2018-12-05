@@ -62,6 +62,12 @@ function setupPolygonCutter(container_selector, source) {
 		];
 	}
 
+	$('#text-cut').on('click', function() {
+		addPoint(10, 200);
+		addPoint(200, 10);
+		addPoint(200, 200);
+	})
+
 	function addPoint(p) {
 		ui.points.push(p);
 		drawPolygon();
@@ -126,6 +132,16 @@ function setupPolygonCutter(container_selector, source) {
 
 		return [left, top, width, height];
 	}
+
+
+	function getPolygonInfo() {
+		var points = ui.points.slice();
+		var image = output.canvas.toDataURL();
+
+		return {points, image};
+	}
+
+	return getPolygonInfo;
 }
 
 function loadLineImage(path, {x,y,w,h},  canvas, callback=null) {

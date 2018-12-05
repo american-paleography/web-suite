@@ -2,12 +2,15 @@ extends ../layout.pug
 
 block page_scripts
 	script(src="/js/render-images.js")
+	script(src="/js/image-details-manip.js")
 
 block content
-	button(onclick="setupPolygonCutter('#cutter', '#source')") Polygon Cutter
-
 	div#cutter
 		="POLYGON CUTTER:"
+		p
+			button#init-cutter Initialize polygon cutting tool
+			button#do-subimage-cut Load current polygon as new source image
+			button#test-cut test
 		div
 			canvas#output-canvas
 			canvas#buffer(style="display: none;")
