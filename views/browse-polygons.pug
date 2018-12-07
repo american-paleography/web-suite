@@ -1,0 +1,18 @@
+extends layout.pug
+
+block page_scripts
+	script(src="/js/browse-polygons.js")
+
+
+block content
+	select#page-selector
+		option(disabled="disabled" selected="selected") choose a file...
+		each id in file_ids
+			option(value=id)= id
+	p
+		="Project folder: "
+		span#project-out
+		br
+		="Filename: "
+		span#file-out
+	div#polygon-output

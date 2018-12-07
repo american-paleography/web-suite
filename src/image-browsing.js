@@ -62,5 +62,51 @@ module.exports = {
 
 			req.mysql.end();
 		})
+
+
+		app.get('/ajax/info-for-file/:file_id', function(req, res) {
+			req.mysql.connect()
+			
+			req.mysql.query('SELECT f.name AS file_name, p.name AS project_name FROM files AS f LEFT JOIN projects AS p ON f.project = p.id WHERE f.id = ?', [req.params.file_id], function(err, results) {
+				console.log(req.params);
+				console.log(results);
+				console.log(err);
+				var host = "http://image-store.tpen-demo.americanpaleography.org";
+				results.forEach(row => {
+					row.path = `/${row.project_name}/${row.file_name}`;
+					row.href = host + row.path;
+				});
+				
+				res.send(results[0]);
+			});
+			req.mysql.end();
+		})
+
+		app.get('/ajax/polygons-for-file/:file_id', function(req, res) {
+			req.mysql.connect()
+			
+			req.mysql.query('SELECT points FROM cut_polygons WHERE file_id = ?', [req.params.file_id], function(err, results) {
+				console.log(req.params);
+				console.log(results);
+				console.log(err);
+				var polygons = results.map(row => {
+					return { points: JSON.parse(row.points) };
+				});
+				
+				res.send({polygons});
+			});
+			req.mysql.end();
+		})
+
+		app.get('/polygons/browse', function(req, res) {
+			req.mysql.connect();
+
+			req.mysql.query('SELECT file_id FROM cut_polygons GROUP BY file_id', function(err, results) {
+				var ids = results.map(r => r.file_id);
+				res.render('browse-polygons', {file_ids: ids});
+			});
+
+			req.mysql.end();
+		})
 	},
 }
