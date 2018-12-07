@@ -52,6 +52,12 @@ module.exports = {
 			var {file_id, points} = req.body;
 
 			req.mysql.query('INSERT INTO cut_polygons (file_id, points) VALUES (?, ?)', [file_id, JSON.stringify(points)], function(err, results) {
+				if (err) {
+					console.log(err);
+					res.send({ok:false});
+				} else {
+					res.send({ok:true});
+				}
 			});
 
 			req.mysql.end();

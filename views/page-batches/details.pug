@@ -5,12 +5,17 @@ block page_scripts
 	script(src="/js/image-details-manip.js")
 
 block content
-	div#cutter
+	div#cutter(style="display: none;")
 		="POLYGON CUTTER:"
 		p
-			button#init-cutter Initialize polygon cutting tool
-			button#do-subimage-cut Load current polygon as new source image
-			button#test-cut test
+			span#file_id_readout
+		p
+			button#init-cutter(disabled="disabled") Initialize polygon cutting tool
+			button#save-polygon(disabled="disabled") Save current polygon
+		p
+			="(these buttons in development)"
+			button#do-subimage-cut(disabled="disabled") Load current polygon as new source image
+			button#test-cut(disabled="disabled") test
 		div
 			canvas#output-canvas
 			canvas#buffer(style="display: none;")

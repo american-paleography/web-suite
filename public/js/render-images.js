@@ -20,7 +20,7 @@ function setupPolygonCutter(container_selector, source) {
 			$(container_selector).width(source.width + 50);
 			$(container_selector).height(source.height + 50);
 			var imgData = source.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
-			canvas.getContext('2d').putImageData(imgData, 0, 0, canvas.width, canvas.height);
+			canvas.getContext('2d').putImageData(imgData, 0, 0);
 		}
 	} else {
 		throw new Error("Must provide a Canvas or Image as the source");
@@ -62,10 +62,10 @@ function setupPolygonCutter(container_selector, source) {
 		];
 	}
 
-	$('#text-cut').on('click', function() {
-		addPoint(10, 200);
-		addPoint(200, 10);
-		addPoint(200, 200);
+	$('#test-cut').on('click', function() {
+		addPoint([10, 200]);
+		addPoint([200, 10]);
+		addPoint([200, 200]);
 	})
 
 	function addPoint(p) {
