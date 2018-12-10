@@ -79,12 +79,22 @@ table.bordered td
 }
 
 
+.embed-pane {
+	width: 90%;
+	height: 100vh;
+	border: 1px dashed blue;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: auto;
+	padding: 4px;
+}
+
 .pos-holder {
 	position: relative;
 }
 
 .layered-canvas{
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 0px;
+    left: 0px;
 }

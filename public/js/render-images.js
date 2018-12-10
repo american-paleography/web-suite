@@ -96,8 +96,8 @@ function setupPolygonCutter(container_selector, source) {
 		console.log(ev);
 		var rect = ev.target.getBoundingClientRect();
 		return [
-			ev.pageX - rect.left,
-			ev.pageY - rect.top,
+			ev.clientX - rect.left,
+			ev.clientY - rect.top,
 		];
 	}
 
@@ -200,9 +200,10 @@ function setupPolygonCutter(container_selector, source) {
 
 	function getPolygonInfo() {
 		var points = ui.points.slice();
-		var image = output.canvas.toDataURL();
 
-		return {points, image};
+		// do NOT send the image itself - it's way too large to POST to something
+
+		return {points,};
 	}
 
 	function undoPolygonSegment() {

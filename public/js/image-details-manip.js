@@ -10,6 +10,10 @@ $(function() {
 				s: savePolygon,
 				i: initCutter,
 				z: undoSegment,
+				ArrowLeft: nudgeLeft,
+				ArrowRight: nudgeRight,
+				ArrowUp: nudgeUp,
+				ArrowDown: nudgeDown,
 			}
 
 			if (e.key in hotkeys) {
@@ -17,6 +21,34 @@ $(function() {
 				e.preventDefault();
 			}
 		}
+	}
+
+	function nudgeLeft() {
+		nudge(-1);
+	}
+	function nudgeRight() {
+		nudge(1);
+	}
+
+	function nudgeDown() {
+		vNudge(1);
+	}
+	function nudgeUp() {
+		vNudge(-1);
+	}
+
+	function nudge(amount) {
+		var el = $('.embed-pane');
+		var w = $(window).width();
+		var newVal = el.scrollLeft() + (w * amount / 4)
+		el.scrollLeft(newVal);
+	}
+
+	function vNudge(amount) {
+		var el = $('.embed-pane');
+		var h = $(window).height();
+		var newVal = el.scrollTop() + (h * amount / 4)
+		el.scrollTop(newVal);
 	}
 
 	$.get('/ajax/page-id-for/' + image_path, function(data) {
