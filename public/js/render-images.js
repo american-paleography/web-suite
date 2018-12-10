@@ -1,5 +1,9 @@
 function setupPolygonCutter(container_selector, source) {
-	window.onerror = alert;
+	window.onerror = function(msg, file, line, offset, err) {
+		var out = err.stack;
+
+		alert(out);
+	};
 
 	if (typeof source == 'string') {
 		source = $(source)[0];
@@ -33,6 +37,7 @@ function setupPolygonCutter(container_selector, source) {
 	ui.canvas = base.find('#ui-overlay')[0];
 	ui.ctx = ui.canvas.getContext('2d');
 	ui.points = [];
+	ui.segmentStarts = [];
 
 	var buffer = {};
 	buffer.canvas = base.find(/*'<canvas>'*/ '#buffer')[0];
@@ -48,17 +53,51 @@ function setupPolygonCutter(container_selector, source) {
 	output.canvas = $('#output-canvas')[0];
 	output.ctx = output.canvas.getContext('2d');
 
-	ui.canvas.addEventListener('mousedown', ev => addPoint(eventToPoint(ev)));
-	ui.canvas.addEventListener('touchstart', ev => addPoint(eventToPoint(ev)));
+	ui.canvas.addEventListener('mousedown', doTouch);
+	ui.canvas.addEventListener('touchstart', doTouch);
 
+	ui.canvas.addEventListener('mousemove', doMove);
+	ui.canvas.addEventListener('touchmove', doMove);
+
+	ui.canvas.addEventListener('mouseup', doTouchEnd);
+	ui.canvas.addEventListener('touchend', doTouchEnd);
+
+	function doTouch(ev) {
+		var spot = ev.changedTouches ? ev.changedTouches[0] : ev;
+		var pt = eventToPoint(spot);
+		if (pt[0] && pt[1]) {
+			addSavePoint();
+			addPoint(pt)
+			ev.preventDefault();
+		}
+	}
+
+	function doMove(ev) {
+		var spot = ev.changedTouches ? ev.changedTouches[0] : ev;
+		var pt = eventToPoint(spot);
+		if (pt[0] && pt[1]) {
+			addPoint(pt)
+			ev.preventDefault();
+		}
+	}
+
+	function doTouchEnd() {
+		drawPolygon();
+		cutPolygon();
+	}
+
+	function addSavePoint() {
+		ui.segmentStarts.push(ui.points.length);
+	}
 	
 	drawTo(bg.canvas);
 
 	function eventToPoint(ev) {
 		console.log(ev);
+		var rect = ev.target.getBoundingClientRect();
 		return [
-			ev.offsetX,
-			ev.offsetY,
+			ev.pageX - rect.left,
+			ev.pageY - rect.top,
 		];
 	}
 
@@ -71,11 +110,14 @@ function setupPolygonCutter(container_selector, source) {
 	function addPoint(p) {
 		ui.points.push(p);
 		drawPolygon();
-		cutPolygon();
 	}
 
 	function drawPolygon() {
 		ui.ctx.clearRect(0, 0, ui.canvas.width, ui.canvas.height);
+
+		if (!ui.points.length) {
+			return;
+		}
 
 		ui.ctx.beginPath()
 		ui.ctx.moveTo(...ui.points[ui.points.length-1]);
@@ -84,12 +126,34 @@ function setupPolygonCutter(container_selector, source) {
 		});
 
 		ui.ctx.stroke();
+
+		ui.ctx.beginPath();
+		ui.ctx.fillStyle = 'red';
+		ui.ctx.arc(...ui.points[0], 10, 0, 2 * Math.PI);
+		ui.ctx.fill();
+		ui.ctx.stroke();
+
+		ui.ctx.beginPath();
+		ui.ctx.fillStyle = 'green';
+		ui.ctx.arc(...ui.points[ui.points.length-1], 10, 0, 2 * Math.PI);
+		ui.ctx.fill();
+		ui.ctx.stroke();
+
+
+		ui.ctx.beginPath();
+		ui.ctx.fillStyle = 'orange';
+		ui.segmentStarts.forEach(index => {
+			ui.ctx.moveTo(...ui.points[index]);
+			ui.ctx.arc(...ui.points[index], 5, 0, 2 * Math.PI);
+		})
+		ui.ctx.fill();
+		ui.ctx.stroke();
 	}
 
 	function cutPolygon() {
 		var rect = getBoundingBox(ui.points);
 
-		if (rect[2] == 0 || rect[3] == 0) {
+		if (!rect[2] || !rect[3]) {
 			return false;
 		}
 
@@ -141,7 +205,19 @@ function setupPolygonCutter(container_selector, source) {
 		return {points, image};
 	}
 
-	return getPolygonInfo;
+	function undoPolygonSegment() {
+		if (ui.segmentStarts.length > 0) {
+			var from = ui.segmentStarts.pop();
+			ui.points.splice(from);
+		}
+		drawPolygon();
+		cutPolygon();
+	}
+
+	return {
+		getter: getPolygonInfo,
+		undo: undoPolygonSegment,
+	};
 }
 
 function loadLineImage(path, {x,y,w,h},  canvas, callback=null) {

@@ -9,11 +9,10 @@ $(function() {
 			var hotkeys = {
 				s: savePolygon,
 				i: initCutter,
-				//z: undoSegment,
+				z: undoSegment,
 			}
 
 			if (e.key in hotkeys) {
-				alert(hotkeys[e.key].name);
 				hotkeys[e.key]();
 				e.preventDefault();
 			}
@@ -48,8 +47,14 @@ $(function() {
 
 
 	function initCutter() {
-		var polyGetter = setupPolygonCutter('#cutter', '#source');
-		$('#save-polygon').data('getterthing', polyGetter);
+		var {getter, undo} = setupPolygonCutter('#cutter', '#source');
+		$('#save-polygon').data('getterthing', getter);
+		$('#undo-segment').data('func', undo);
+	}
+
+	function undoSegment() {
+		var func = $('#undo-segment').data('func');
+		func();
 	}
 
 	function savePolygon() {
