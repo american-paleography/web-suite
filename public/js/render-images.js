@@ -62,10 +62,13 @@ function setupPolygonCutter(container_selector, source) {
 	ui.canvas.addEventListener('mouseup', doTouchEnd);
 	ui.canvas.addEventListener('touchend', doTouchEnd);
 
+	var touching = false;
+
 	function doTouch(ev) {
 		var spot = ev.changedTouches ? ev.changedTouches[0] : ev;
 		var pt = eventToPoint(spot);
 		if (pt[0] && pt[1]) {
+			touching = true;
 			addSavePoint();
 			addPoint(pt)
 			ev.preventDefault();
@@ -73,6 +76,10 @@ function setupPolygonCutter(container_selector, source) {
 	}
 
 	function doMove(ev) {
+		if (!touching) {
+			return;
+		}
+
 		var spot = ev.changedTouches ? ev.changedTouches[0] : ev;
 		var pt = eventToPoint(spot);
 		if (pt[0] && pt[1]) {
@@ -82,6 +89,7 @@ function setupPolygonCutter(container_selector, source) {
 	}
 
 	function doTouchEnd() {
+		touching = false;
 		drawPolygon();
 		cutPolygon();
 	}
