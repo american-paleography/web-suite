@@ -1,6 +1,25 @@
 $(function() {
 	var image_path = $('#source').attr("src").match(/\/([^\/]*\/[^\/]*)$/)[1];
 	var FILE_ID = -1;
+
+	$(document).on('keydown', handleHotkeys);
+
+	function handleHotkeys(e) {
+		if (e.ctrlKey) {
+			var hotkeys = {
+				s: savePolygon,
+				i: initCutter,
+				//z: undoSegment,
+			}
+
+			if (e.key in hotkeys) {
+				alert(hotkeys[e.key].name);
+				hotkeys[e.key]();
+				e.preventDefault();
+			}
+		}
+	}
+
 	$.get('/ajax/page-id-for/' + image_path, function(data) {
 		if (data.ok) {
 			$('#cutter').show();
@@ -16,8 +35,7 @@ $(function() {
 	})
 	
 	$('#init-cutter').on('click', function() {
-		var polyGetter = setupPolygonCutter('#cutter', '#source');
-		$('#save-polygon').data('getterthing', polyGetter);
+		initCutter();
 	});
 
 	$('#do-subimage-cut').on('click', function() {
@@ -25,7 +43,17 @@ $(function() {
 	})
 
 	$('#save-polygon').on('click', function() {
-		var data = $(this).data('getterthing')();
+		savePolygon();
+	})
+
+
+	function initCutter() {
+		var polyGetter = setupPolygonCutter('#cutter', '#source');
+		$('#save-polygon').data('getterthing', polyGetter);
+	}
+
+	function savePolygon() {
+		var data = $('#save-polygon').data('getterthing')();
 		data.file_id = FILE_ID;
 		$.post('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
@@ -34,5 +62,5 @@ $(function() {
 				alert("Failed to save polygon!");
 			}
 		})
-	})
+	}
 })
