@@ -208,10 +208,11 @@ function setupPolygonCutter(container_selector, source) {
 
 	function getPolygonInfo() {
 		var points = ui.points.slice();
+		var undo_indices = ui.segmentStarts.slice();
 
 		// do NOT send the image itself - it's way too large to POST to something
 
-		return {points,};
+		return {points, undo_indices};
 	}
 
 	function undoPolygonSegment() {

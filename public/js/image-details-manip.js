@@ -56,11 +56,13 @@ $(function() {
 			$('#cutter').show();
 			$('#file_id_readout').text('file ID: ' + data.id);
 			FILE_ID = data.id;
+
+			$.get('/ajax/lines-for-file/' + data.id, function(data) {
+				useLines(data.lines);
+			});
 		}
 	})
 
-		//app.post('/ajax/save-cut-polygon', function(req, res) {
-		//app.get('/ajax/page-id-for/:proj_name/:page_name', function(req, res) {
 	$('#source').on('load', function() {
 		$('button').attr('disabled', null);
 	})
@@ -92,6 +94,7 @@ $(function() {
 	function savePolygon() {
 		var data = $('#save-polygon').data('getterthing')();
 		data.file_id = FILE_ID;
+		//data.line = active_line;
 		$.post('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
 				alert("Saved polygon for page " + FILE_ID);
@@ -99,5 +102,10 @@ $(function() {
 				alert("Failed to save polygon!");
 			}
 		})
+	}
+
+	function useLines(lines) {
+		$('#line-output').text(lines.map(l => l.text).join("\n"));
+
 	}
 })

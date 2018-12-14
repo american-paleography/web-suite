@@ -49,9 +49,9 @@ module.exports = {
 		})
 
 		app.post('/ajax/save-cut-polygon', function(req, res) {
-			var {file_id, points} = req.body;
+			var {file_id, points, undo_indices} = req.body;
 
-			req.mysql.query('INSERT INTO cut_polygons (file_id, points) VALUES (?, ?)', [file_id, JSON.stringify(points)], function(err, results) {
+			req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices) VALUES (?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices)], function(err, results) {
 				if (err) {
 					console.log(err);
 					res.send({ok:false});
@@ -63,14 +63,24 @@ module.exports = {
 			req.mysql.end();
 		})
 
+		app.get('/ajax/lines-for-file/:file_id', function(req, res) {
+			req.mysql.connect()
+
+			var payload = {};
+
+			req.mysql.query('SELECT trans_line.id AS line_id, trans.value AS text, trans_line.index_num AS line_num FROM line_annos as trans LEFT JOIN `lines` AS trans_line ON trans_line.id = trans.line_id WHERE trans.type_id = 1 AND trans_line.file_id = ? ORDER BY trans_line.index_num ASC', [req.params.file_id], function(err, results) {
+				payload.lines = results;
+			})
+
+			req.mysql.end(function() {
+				res.send(payload);
+			});
+		})
 
 		app.get('/ajax/info-for-file/:file_id', function(req, res) {
 			req.mysql.connect()
 			
 			req.mysql.query('SELECT f.name AS file_name, p.name AS project_name FROM files AS f LEFT JOIN projects AS p ON f.project = p.id WHERE f.id = ?', [req.params.file_id], function(err, results) {
-				console.log(req.params);
-				console.log(results);
-				console.log(err);
 				var host = "http://image-store.tpen-demo.americanpaleography.org";
 				results.forEach(row => {
 					row.path = `/${row.project_name}/${row.file_name}`;
