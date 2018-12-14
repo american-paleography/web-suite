@@ -20,8 +20,20 @@ block content
 		div
 			canvas#output-canvas
 			canvas#buffer(style="display: none;")
-		pre#line-output
-			="testing"
+		div
+			p
+				="Mode:"
+				br
+				="| "
+				each mode in ["line", "single-word"]
+					input(type="radio" name="mode" value=mode checked="checked")
+					label= mode
+					=" | "
+			p
+				select#line-selector
+			p
+				table
+					tr#word-selector-area
 		div.embed-pane
 			div.pos-holder
 				canvas.layered-canvas#bg-canvas

@@ -15,7 +15,7 @@ module.exports = {
 
 		app.get('/page-batches/:proj_name/files', function(req, res) {
 			var proj = req.params.proj_name;
-			var path = process.env.HOME + "/paleo-glue/public/" + proj;
+			var path = "/imagestore/main/" + proj;
 			fs.readdir(path, function(err, results) {
 				var filenames = results.filter(f => f.match(/\.jpe?g$/i));
 				res.render('page-batches/files', { files: filenames, proj, }) 
@@ -49,9 +49,10 @@ module.exports = {
 		})
 
 		app.post('/ajax/save-cut-polygon', function(req, res) {
-			var {file_id, points, undo_indices} = req.body;
+			var {file_id, points, undo_indices, transcription} = req.body;
+			var {line_id, text, start, end} = transcription
 
-			req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices) VALUES (?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices)], function(err, results) {
+			req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end) VALUES (?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end], function(err, results) {
 				if (err) {
 					console.log(err);
 					res.send({ok:false});

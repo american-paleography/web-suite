@@ -91,21 +91,87 @@ $(function() {
 		func();
 	}
 
+	var valid_lines;
+	var active_line;
+
 	function savePolygon() {
 		var data = $('#save-polygon').data('getterthing')();
 		data.file_id = FILE_ID;
-		//data.line = active_line;
+		data.transcription = {
+			line_id: active_line.line_id,
+		}
+		var mode = $('[name=mode]:checked').val();
+		if (mode == 'line') {
+			data.transcription.text = active_line.text;
+			data.transcription.start = 0;
+			data.transcription.end = active_line.text.length;
+		} else {
+			var sel = $('[name=word]:checked');
+			data.transcription.text = sel.data('text');
+			data.transcription.start = sel.data('start');
+			data.transcription.end = sel.data('end');
+		}
+
 		$.post('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
-				alert("Saved polygon for page " + FILE_ID);
+				alert("Saved polygon for page " + FILE_ID + ", and text \"" + data.transcription.text + "\"");
 			} else {
 				alert("Failed to save polygon!");
 			}
 		})
 	}
 
-	function useLines(lines) {
-		$('#line-output').text(lines.map(l => l.text).join("\n"));
 
+	function useLines(lines) {
+		valid_lines = lines;
+		var line_sel = $('#line-selector');
+		line_sel.empty();
+
+		valid_lines.forEach((line,i) => {
+			var opt = $('<option>');
+			opt.attr('value', i);
+			opt.text(`[${line.line_num + 1}]: ${line.text}`);
+			line_sel.append(opt);
+		});
+		
+		updateCurrentLine();
+	}
+
+	$('#line-selector').on('change', updateCurrentLine);
+
+	function updateCurrentLine() {
+		var id = $('#line-selector').val();
+
+		active_line = valid_lines[id];
+
+		var into = $('#word-selector-area');
+		into.empty();
+		var regex = /\S+/g;
+		var match;
+		var first = true;
+		while (match = regex.exec(active_line.text)) {
+			var start = match.index
+			var word = match[0];
+			var end = start + word.length;
+
+			var opt = $('<input name="word" type="radio">');
+			if (first) {
+				opt.attr('checked', 'checked');
+			}
+
+			opt.data('text', word);
+			opt.data('start', start);
+			opt.data('end', end);
+
+			var label = $('<label>');
+			label.text(word);
+			var cell = $('<td>');
+			cell.append(opt);
+			cell.append($('<br>'));
+			cell.append(label);
+			into.append(cell);
+
+			first = false;
+		}
 	}
 })
