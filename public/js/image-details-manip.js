@@ -107,11 +107,13 @@ $(function() {
 			data.transcription.text = active_line.text;
 			data.transcription.start = 0;
 			data.transcription.end = active_line.text.length;
+			nextLine();
 		} else {
 			var sel = $('[name=word]:checked');
 			data.transcription.text = sel.data('text');
 			data.transcription.start = sel.data('start');
 			data.transcription.end = sel.data('end');
+			nextWord();
 		}
 
 		$.post('/ajax/save-cut-polygon', data, function(res) {
@@ -182,8 +184,12 @@ $(function() {
 		if (next.length > 0) {
 			next.prop('checked', true);
 		} else {
-			$('#line-selector option:selected').next().prop('selected', true)
-			updateCurrentLine()
+			nextLine();
 		}
+	}
+
+	function nextLine() {
+		$('#line-selector option:selected').next().prop('selected', true)
+		updateCurrentLine()
 	}
 })
