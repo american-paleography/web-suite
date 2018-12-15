@@ -10,6 +10,8 @@ $(function() {
 				s: savePolygon,
 				i: initCutter,
 				z: undoSegment,
+				n: nextWord,
+				m: nextWord,
 				ArrowLeft: nudgeLeft,
 				ArrowRight: nudgeRight,
 				ArrowUp: nudgeUp,
@@ -172,6 +174,16 @@ $(function() {
 			into.append(cell);
 
 			first = false;
+		}
+	}
+
+	function nextWord() {
+		var next = $('[name=word]:checked').parent().next().find('[name=word]')
+		if (next.length > 0) {
+			next.prop('checked', true);
+		} else {
+			$('#line-selector option:selected').next().prop('selected', true)
+			updateCurrentLine()
 		}
 	}
 })
