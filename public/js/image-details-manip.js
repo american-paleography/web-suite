@@ -82,10 +82,21 @@ $(function() {
 	})
 
 
+	var precuts;
+
 	function initCutter() {
-		var {getter, undo} = setupPolygonCutter('#cutter', '#source');
+		var {getter, undo, setPrecuts} = setupPolygonCutter('#cutter', '#source');
 		$('#save-polygon').data('getterthing', getter);
 		$('#undo-segment').data('func', undo);
+
+		if (precuts) {
+			setPrecuts(precuts);
+		} else {
+			$.get('/ajax/polygons-for-file/' + FILE_ID, function(data) {
+				precuts = data.polygons;
+				setPrecuts(precuts);
+			})
+		}
 	}
 
 	function undoSegment() {

@@ -120,12 +120,35 @@ function setupPolygonCutter(container_selector, source) {
 		drawPolygon();
 	}
 
+	function drawPrecutAreas() {
+		if (ui.precut) {
+			ui.precut.forEach(poly => {
+				ui.ctx.beginPath();
+
+				ui.ctx.strokeStyle = poly.line_id ? 'green' : 'yellow';
+				ui.ctx.lineWidth = 3;
+				
+				ui.ctx.moveTo(...poly.points[poly.points.length-1]);
+				poly.points.forEach(point => {
+					ui.ctx.lineTo(...point);
+				});
+
+				ui.ctx.stroke();
+			})
+		}
+	}
+
 	function drawPolygon() {
 		ui.ctx.clearRect(0, 0, ui.canvas.width, ui.canvas.height);
+
+		drawPrecutAreas();
 
 		if (!ui.points.length) {
 			return;
 		}
+
+		ui.ctx.lineWidth = 1;
+		ui.ctx.strokeStyle = 'black';
 
 		ui.ctx.beginPath()
 		ui.ctx.moveTo(...ui.points[ui.points.length-1]);
@@ -224,9 +247,15 @@ function setupPolygonCutter(container_selector, source) {
 		cutPolygon();
 	}
 
+	function setPrecutAreas(cuts) {
+		ui.precut = cuts;
+		drawPolygon();
+	}
+
 	return {
 		getter: getPolygonInfo,
 		undo: undoPolygonSegment,
+		setPrecuts: setPrecutAreas,
 	};
 }
 
