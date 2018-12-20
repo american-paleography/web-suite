@@ -1,45 +1,45 @@
 extends ../layout.pug
 
 block page_scripts
+	link(rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css")
+	script(src="https://code.jquery.com/ui/1.12.1/jquery-ui.js")
+
+	link(rel="stylesheet" href="/css/polygon-cutter.css")
 	script(src="/js/render-images.js")
 	script(src="/js/image-details-manip.js")
 
 block content
 	div#cutter(style="display: none;")
 		="POLYGON CUTTER:"
-		p
-			span#file_id_readout
-		p
-			button#init-cutter(disabled="disabled") Initialize polygon cutting tool
-			button#save-polygon(disabled="disabled") Save current polygon
-			button#undo-segment(disabled="disabled") Undo last point/stroke
-		p
-			="(these buttons in development)"
-			button#do-subimage-cut(disabled="disabled") Load current polygon as new source image
-			button#test-cut(disabled="disabled") test
-		div
+		div#tools.draggable
+			p
+				span#file_id_readout
+			p
+				button#init-cutter(disabled="disabled") Initialize polygon cutting tool
+				button#save-polygon(disabled="disabled") Save current polygon
+				button#undo-segment(disabled="disabled") Undo last point/stroke
+			div
+				p
+					="Mode:"
+					br
+					="| "
+					each mode in ["line", "single-word"]
+						input(type="radio" name="mode" value=mode checked="checked")
+						label= mode
+						=" | "
+				p
+					select#line-selector
+				p
+					table
+						tr#word-selector-area
+		div(style="display: none;")
 			canvas#output-canvas
 			canvas#buffer(style="display: none;")
 		div
-			p
-				="Mode:"
-				br
-				="| "
-				each mode in ["line", "single-word"]
-					input(type="radio" name="mode" value=mode checked="checked")
-					label= mode
-					=" | "
-			p
-				select#line-selector
-			p
-				table
-					tr#word-selector-area
-		div.embed-pane
-			div.pos-holder
-				canvas.layered-canvas#bg-canvas
-				canvas.layered-canvas#ui-overlay
+			canvas.layered-canvas#bg-canvas
+			canvas.layered-canvas#ui-overlay
 
-	div#source-image
+	div#source-image(style="display: none;")
 		="ORIGINAL IMAGE:"
 		div.pos-holder
 			img#source.layered-canvas(src=`http://image-store.tpen-demo.americanpaleography.org/${proj}/${page}` crossorigin="Anonymous")

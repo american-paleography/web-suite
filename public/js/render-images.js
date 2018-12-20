@@ -64,7 +64,19 @@ function setupPolygonCutter(container_selector, source) {
 
 	var touching = false;
 
+	function isLeft(ev) {
+		if (ev.changedTouches) {
+			return true;
+		} else {
+			return ev.button == 0;
+		}
+	}
+
 	function doTouch(ev) {
+		if (!isLeft(ev)) {
+			return;
+		}
+
 		var spot = ev.changedTouches ? ev.changedTouches[0] : ev;
 		var pt = eventToPoint(spot);
 		if (pt[0] && pt[1]) {
@@ -88,10 +100,14 @@ function setupPolygonCutter(container_selector, source) {
 		}
 	}
 
-	function doTouchEnd() {
+	function doTouchEnd(ev) {
+		if (!isLeft(ev)) {
+			return;
+		}
+
 		touching = false;
 		drawPolygon();
-		cutPolygon();
+		//cutPolygon();
 	}
 
 	function addSavePoint() {
@@ -244,7 +260,7 @@ function setupPolygonCutter(container_selector, source) {
 			ui.points.splice(from);
 		}
 		drawPolygon();
-		cutPolygon();
+		//cutPolygon();
 	}
 
 	function setPrecutAreas(cuts) {

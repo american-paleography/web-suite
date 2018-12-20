@@ -1,0 +1,9 @@
+#tools {
+	width: 400px;
+}
+
+.draggable {
+	padding: 1em;
+	border-radius: 10px;
+	border: 1px dashed black;
+}

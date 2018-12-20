@@ -1,4 +1,23 @@
 $(function() {
+	$('.draggable').draggable()
+	var lastScrollPos = { top: 0, left: 0};
+	$(document).on('scroll', function() {
+		var tpos = document.body.scrollTop;
+		var lpos = document.body.scrollLeft;
+
+		var tdiff = tpos - lastScrollPos.top;
+		var ldiff = lpos - lastScrollPos.left;
+
+		var toolbox = $('#tools');
+
+		var offset = toolbox.offset();
+		offset.top += tdiff;
+		offset.left += ldiff;
+		toolbox.offset(offset);
+
+		lastScrollPos = {top: tpos, left: lpos};
+	})
+
 	var image_path = $('#source').attr("src").match(/\/([^\/]*\/[^\/]*)$/)[1];
 	var FILE_ID = -1;
 
@@ -67,6 +86,7 @@ $(function() {
 
 	$('#source').on('load', function() {
 		$('button').attr('disabled', null);
+		initCutter();
 	})
 	
 	$('#init-cutter').on('click', function() {
