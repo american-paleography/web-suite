@@ -57,6 +57,29 @@ module.exports = {
 					console.log(err);
 					res.send({ok:false});
 				} else {
+					req.mysql.query('SELECT LAST_INSERT_ID() AS id', function(err, results) {
+						if (err) {
+							console.log(err);
+							res.send({ok:true});
+						} else {
+							console.log(results);
+							res.send({ok:true, id: results[0].id});
+						}
+					})
+				}
+
+				req.mysql.end();
+			});
+		})
+
+		app.post('/ajax/delete-polygon/:polygon_id', function(req, res) {
+			var {polygon_id} = req.params;
+
+			req.mysql.query('DELETE FROM cut_polygons WHERE id = ?', [polygon_id], function(err, results) {
+				if (err) {
+					console.log(err);
+					res.send({ok:false});
+				} else {
 					res.send({ok:true});
 				}
 			});

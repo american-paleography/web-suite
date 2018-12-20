@@ -149,7 +149,22 @@ $(function() {
 
 		$.post('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
-				alert("Saved polygon for page " + FILE_ID + ", and text \"" + data.transcription.text + "\"");
+				var text = "Saved polygon for page " + FILE_ID + ", and text \"" + data.transcription.text + "\""
+				// this does introduce an assumption that id != 0
+				if (res.id) {
+					var keep = confirm(text + "\n\nKeep saved polygon?");
+					if (!keep) {
+						$.post('/ajax/delete-polygon/' + res.id, function(res) {
+							if (res.ok) {
+								alert("Deleted polygon");
+							} else {
+								alert("Couldn't delete polygon");
+							}
+						});
+					}
+				} else {
+					alert(text + "\n\nHowever, couldn't find ID for new polygon.");
+				}
 			} else {
 				alert("Failed to save polygon!");
 			}
