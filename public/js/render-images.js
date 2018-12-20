@@ -175,27 +175,33 @@ function setupPolygonCutter(container_selector, source) {
 
 		ui.ctx.stroke();
 
-		ui.ctx.beginPath();
-		ui.ctx.fillStyle = 'red';
-		ui.ctx.arc(...ui.points[0], 10, 0, 2 * Math.PI);
-		ui.ctx.fill();
-		ui.ctx.stroke();
+		(function drawControlPoints() {
+			ui.ctx.globalAlpha = 0.15;
 
-		ui.ctx.beginPath();
-		ui.ctx.fillStyle = 'green';
-		ui.ctx.arc(...ui.points[ui.points.length-1], 10, 0, 2 * Math.PI);
-		ui.ctx.fill();
-		ui.ctx.stroke();
+			ui.ctx.beginPath();
+			ui.ctx.fillStyle = 'red';
+			ui.ctx.arc(...ui.points[0], 10, 0, 2 * Math.PI);
+			ui.ctx.fill();
+			ui.ctx.stroke();
+
+			ui.ctx.beginPath();
+			ui.ctx.fillStyle = 'orange';
+			ui.ctx.arc(...ui.points[ui.points.length-1], 10, 0, 2 * Math.PI);
+			ui.ctx.fill();
+			ui.ctx.stroke();
 
 
-		ui.ctx.beginPath();
-		ui.ctx.fillStyle = 'orange';
-		ui.segmentStarts.forEach(index => {
-			ui.ctx.moveTo(...ui.points[index]);
-			ui.ctx.arc(...ui.points[index], 5, 0, 2 * Math.PI);
-		})
-		ui.ctx.fill();
-		ui.ctx.stroke();
+			ui.ctx.beginPath();
+			ui.ctx.fillStyle = 'green';
+			ui.segmentStarts.forEach(index => {
+				ui.ctx.moveTo(...ui.points[index]);
+				ui.ctx.arc(...ui.points[index], 5, 0, 2 * Math.PI);
+			})
+			ui.ctx.fill();
+			ui.ctx.stroke();
+
+			ui.ctx.globalAlpha = 1;
+		})()
 	}
 
 	function cutPolygon() {
