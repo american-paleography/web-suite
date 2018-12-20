@@ -83,6 +83,7 @@ function setupPolygonCutter(container_selector, source) {
 			touching = true;
 			addSavePoint();
 			addPoint(pt)
+			ev.target.focus();
 			ev.preventDefault();
 		}
 	}
