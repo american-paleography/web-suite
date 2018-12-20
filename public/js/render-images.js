@@ -292,6 +292,7 @@ function loadLineImage(path, {x,y,w,h},  canvas, callback=null) {
 		var scale = 4.5; // is this correct for all images...?
 		var img = new Image();
 		img.onload = function() {
+			scale = img.height / 1000;
 			canvas.attr('width', w);
 			canvas.attr('height', h);
 			var ctx = canvas[0].getContext('2d');
@@ -308,6 +309,7 @@ function highlightLineBoundaries(path, lines, canvas, callback=null) {
 		var scale = 4.5; // is this correct for all images...?
 		var img = new Image();
 		img.onload = function() {
+			scale = img.height / 1000;
 			canvas.attr('width', img.width);
 			canvas.attr('height', img.height);
 			var ctx = canvas[0].getContext('2d');
