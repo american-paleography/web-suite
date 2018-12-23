@@ -52,7 +52,12 @@ module.exports = {
 			var {file_id, points, undo_indices, transcription} = req.body;
 			var {line_id, text, start, end} = transcription
 
-			req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end) VALUES (?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end], function(err, results) {
+			var creator_id = req.session.user_id;
+			if (!creator_id || typeof creator_id != 'number') {
+				creator_id = null;
+			}
+
+			req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end, creator_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end, creator_id], function(err, results) {
 				if (err) {
 					console.log(err);
 					res.send({ok:false});
