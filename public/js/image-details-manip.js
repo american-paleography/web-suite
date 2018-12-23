@@ -129,6 +129,12 @@ $(function() {
 
 	function savePolygon() {
 		var data = $('#save-polygon').data('getterthing')();
+
+		if (data.points.length <= 2) {
+			alert("Need at least 3 points before a polygon can be saved");
+			return;
+		}
+
 		data.file_id = FILE_ID;
 		data.transcription = {
 			line_id: active_line.line_id,
@@ -153,7 +159,9 @@ $(function() {
 				// this does introduce an assumption that id != 0
 				if (res.id) {
 					var keep = confirm(text + "\n\nKeep saved polygon?");
-					if (!keep) {
+					if (keep) {
+						initCutter();
+					} else {
 						$.post('/ajax/delete-polygon/' + res.id, function(res) {
 							if (res.ok) {
 								alert("Deleted polygon");
@@ -164,6 +172,7 @@ $(function() {
 					}
 				} else {
 					alert(text + "\n\nHowever, couldn't find ID for new polygon.");
+					initCutter();
 				}
 			} else {
 				alert("Failed to save polygon!");
