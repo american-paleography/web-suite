@@ -5,6 +5,13 @@ const bcrypt_salt_rounds = 12;
 
 module.exports = {
 	use: function(app) {
+		app.get('/login', function(req, res) {
+			var fs = require('fs');
+			fs.readFile('public/user.html', function(err, data) {
+				res.send(data.toString());
+			})
+		})
+
 		app.post('/create-user', function(req, res) {
 			req.mysql.connect();
 

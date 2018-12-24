@@ -1,0 +1,18 @@
+{
+	"Features/Bugs": {
+		"Name": "string",
+		"Type": [
+			"Feature",
+			"Bug",
+			"Housekeeping",
+			"Planning"
+		],
+		"priority": [
+			"2: let's do it now (or soon)",
+			"4: maybe",
+			"5: defer",
+			"3: next time the code is touched",
+			"1: immediate"
+		]
+	}
+}

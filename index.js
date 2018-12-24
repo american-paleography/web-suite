@@ -199,6 +199,35 @@ app.get('/all-word-images', function(req, res) {
 	})
 })
 
+app.get('/internal/todo-list', function(req, res) {
+	req.mysql.connect();
+
+	var good = false;
+	req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results, fields) {
+		try {
+			assert.ok(results[0]);
+			assert.equal(results[0].is_admin, true);
+			good = true;
+		} catch(e) {
+			req.mysql.destroy();
+		}
+	})
+
+	req.mysql.end(function() {
+		console.log(req.session.user_id)
+		if (good) {
+			var funcs = require('./src/airtable-api.js');
+			funcs.exportTable('Features/Bugs', function(records) {
+				records = records.filter(r => !r.fields.Deployed);
+				records.forEach(r => r.order = parseInt(r.fields.priority));
+				res.render("todo-list", { features: records });
+			})
+		} else {
+			res.redirect('/login');
+		}
+	})
+})
+
 app.get('/browse-lines', function(req, res) {
 	res.render('browse-lines');
 })

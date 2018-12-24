@@ -1,0 +1,23 @@
+extends layout.pug
+
+block page_scripts
+
+block content
+	ul
+		each rank in [1,2, 3, 4]
+			li
+				strong= rank
+				ul
+					each entry in features.filter(f => !isNaN(f.order) && f.order == rank)
+						li
+							if entry.fields.Implemented
+								strike= entry.fields.Name
+							else
+								=entry.fields.Name
+		li
+			strong= "uncategorized"
+			ul
+				each entry in features.filter(f => isNaN(f.order))
+					li
+						=entry.fields.Name
+
