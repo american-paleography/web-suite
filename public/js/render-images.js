@@ -1,4 +1,4 @@
-function setupPolygonCutter(container_selector, source) {
+function setupPolygonCutter(container_selector, source, scale) {
 	window.onerror = function(msg, file, line, offset, err) {
 		var out = err.stack;
 
@@ -11,18 +11,30 @@ function setupPolygonCutter(container_selector, source) {
 
 	if (source instanceof Image) {
 		function drawTo(canvas) {
-			ui.canvas.width = canvas.width = source.width;
-			ui.canvas.height = canvas.height = source.height;
-			$(container_selector).width(source.width + 50);
-			$(container_selector).height(source.height + 50);
+			var width = source.width * scale;
+			var height = source.height * scale;
+			ui.canvas.width = canvas.width = width;
+			ui.canvas.height = canvas.height = height;
+			$(container_selector).width(width + 50);
+			$(container_selector).height(height + 50);
+
+			ui.ctx.scale(scale, scale);
+			bg.ctx.scale(scale, scale);
+
 			canvas.getContext('2d').drawImage(source, 0, 0);
 		}
 	} else if (source instanceof HTMLCanvasElement) {
 		function drawTo(canvas) {
-			ui.canvas.width = canvas.width = source.width;
-			ui.canvas.height = canvas.height = source.height;
-			$(container_selector).width(source.width + 50);
-			$(container_selector).height(source.height + 50);
+			var width = source.width * scale;
+			var height = source.height * scale;
+			ui.canvas.width = canvas.width = width;
+			ui.canvas.height = canvas.height = height;
+			$(container_selector).width(width + 50);
+			$(container_selector).height(height + 50);
+
+			ui.ctx.scale(scale, scale);
+			bg.ctx.scale(scale, scale);
+			
 			var imgData = source.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
 			canvas.getContext('2d').putImageData(imgData, 0, 0);
 		}
@@ -123,7 +135,7 @@ function setupPolygonCutter(container_selector, source) {
 		return [
 			ev.clientX - rect.left,
 			ev.clientY - rect.top,
-		];
+		].map(c => c && c / scale);
 	}
 
 	$('#test-cut').on('click', function() {
@@ -156,7 +168,7 @@ function setupPolygonCutter(container_selector, source) {
 	}
 
 	function drawPolygon() {
-		ui.ctx.clearRect(0, 0, ui.canvas.width, ui.canvas.height);
+		ui.ctx.clearRect(0, 0, ui.canvas.width / scale, ui.canvas.height / scale);
 
 		drawPrecutAreas();
 
@@ -164,7 +176,7 @@ function setupPolygonCutter(container_selector, source) {
 			return;
 		}
 
-		ui.ctx.lineWidth = 1;
+		ui.ctx.lineWidth = 1 / scale;
 		ui.ctx.strokeStyle = 'black';
 
 		ui.ctx.beginPath()
@@ -178,15 +190,17 @@ function setupPolygonCutter(container_selector, source) {
 		(function drawControlPoints() {
 			ui.ctx.globalAlpha = 0.15;
 
+			var rad = 10 / scale;
+
 			ui.ctx.beginPath();
 			ui.ctx.fillStyle = 'red';
-			ui.ctx.arc(...ui.points[0], 10, 0, 2 * Math.PI);
+			ui.ctx.arc(...ui.points[0], rad, 0, 2 * Math.PI);
 			ui.ctx.fill();
 			ui.ctx.stroke();
 
 			ui.ctx.beginPath();
 			ui.ctx.fillStyle = 'orange';
-			ui.ctx.arc(...ui.points[ui.points.length-1], 10, 0, 2 * Math.PI);
+			ui.ctx.arc(...ui.points[ui.points.length-1], rad, 0, 2 * Math.PI);
 			ui.ctx.fill();
 			ui.ctx.stroke();
 
@@ -195,7 +209,7 @@ function setupPolygonCutter(container_selector, source) {
 			ui.ctx.fillStyle = 'green';
 			ui.segmentStarts.forEach(index => {
 				ui.ctx.moveTo(...ui.points[index]);
-				ui.ctx.arc(...ui.points[index], 5, 0, 2 * Math.PI);
+				ui.ctx.arc(...ui.points[index], rad/2, 0, 2 * Math.PI);
 			})
 			ui.ctx.fill();
 			ui.ctx.stroke();
@@ -275,10 +289,29 @@ function setupPolygonCutter(container_selector, source) {
 		drawPolygon();
 	}
 
+	function incScale(amount) {
+		scale += (amount * scale);
+		if (scale < 0.1) {
+			scale = 0.1;
+		}
+		if (scale > 10) {
+			scale = 10;
+		}
+
+		drawTo(bg.canvas);
+		drawPolygon();
+	}
+
+	function getScale() {
+		return scale;
+	}
+
 	return {
 		getter: getPolygonInfo,
 		undo: undoPolygonSegment,
 		setPrecuts: setPrecutAreas,
+		incScale,
+		getScale,
 	};
 }
 

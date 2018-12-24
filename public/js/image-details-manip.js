@@ -35,6 +35,12 @@ $(function() {
 				ArrowRight: nudgeRight,
 				ArrowUp: nudgeUp,
 				ArrowDown: nudgeDown,
+				',': function() {
+					$('#cutter').data('inc-scale')(-0.1);
+				},
+				'.': function() {
+					$('#cutter').data('inc-scale')(+0.1);
+				},
 			}
 
 			if (e.key in hotkeys) {
@@ -72,21 +78,23 @@ $(function() {
 		el.scrollTop(newVal);
 	}
 
-	$.get('/ajax/page-id-for/' + image_path, function(data) {
-		if (data.ok) {
-			$('#cutter').show();
-			$('#file_id_readout').text('file ID: ' + data.id);
-			FILE_ID = data.id;
-
-			$.get('/ajax/lines-for-file/' + data.id, function(data) {
-				useLines(data.lines);
-			});
-		}
-	})
-
 	$('#source').on('load', function() {
-		$('button').attr('disabled', null);
-		initCutter();
+		$.get('/ajax/page-id-for/' + image_path, function(data) {
+			if (data.ok) {
+				$('button').attr('disabled', null);
+
+				$('#cutter').show();
+				$('#file_id_readout').text('file ID: ' + data.id);
+				FILE_ID = data.id;
+
+				$.get('/ajax/lines-for-file/' + data.id, function(data) {
+					useLines(data.lines);
+				});
+				initCutter();
+			} else {
+				alert("Couldn't get page metadata");
+			}
+		})
 	})
 	
 	$('#init-cutter').on('click', function() {
@@ -105,9 +113,21 @@ $(function() {
 	var precuts;
 
 	function initCutter() {
-		var {getter, undo, setPrecuts} = setupPolygonCutter('#cutter', '#source');
+		// I... should probably restructure so that there's less encapsulation. That .data(...) thing is awkward, and is the reason why I'm creating an anonymous directly-evaluated function *solely* to have a throwaway variable.
+		var scale = (function() {
+			var get = $('#cutter').data('get-scale');
+			if (get) {
+				return get();
+			} else {
+				return 1;
+			}
+		})();
+
+		var {getter, undo, setPrecuts, incScale, getScale} = setupPolygonCutter('#cutter', '#source', scale);
 		$('#save-polygon').data('getterthing', getter);
 		$('#undo-segment').data('func', undo);
+		$('#cutter').data('inc-scale', incScale);
+		$('#cutter').data('get-scale', getScale);
 
 		if (precuts) {
 			setPrecuts(precuts);
