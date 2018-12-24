@@ -29,6 +29,10 @@ app.use(session({
 	store: sessionStore,
 	resave: false,
 	saveUninitialized: false,
+	cookie: {
+		maxAge: 1000 * 60 * 60 * 24 * 14,
+		saveUninitialized: false,
+	},
 }));
 
 app.set('view engine', 'pug');
