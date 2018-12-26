@@ -12,6 +12,14 @@ html
 
 		block page_scripts
 	body
-		div#navbar-header
+		section#navbar-header
+			span
+				a(href="/index") Site Index
+			span.right
+				if me.username
+					span= `Username: ${me.username}`
+				else
+					span No User. 
+					a(href="/login") Login?
 		div
 			block content

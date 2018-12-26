@@ -47,6 +47,7 @@ module.exports = {
 				bcrypt.compare(req.body.password, hash).then(function(valid) {
 					if (valid) {
 						req.session.user_id = results[0].id;
+						req.session.username = req.body.username;
 						res.send({ok:true});
 					} else {
 						res.send({ok:false});

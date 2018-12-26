@@ -1,13 +1,25 @@
 extends layout.pug
 
 block content
-	div
+	section
+		h3 Polygons
+		p
+			ul
+				li
+					a(href="/page-batches/list") Browse images, to cut polygons
+	section
+		h3 Internal Info
+		p
+			ul
+				li
+					a(href="/internal/todo-list") Todo List
+	section
 		h3 Metadata management
 		p
 			a(href="manage-metadata.html") manage metadata fields
 			=" "
 			a(href="update-file-metadata") add metadata to file
-	div
+	section
 		h3 in-development pages
 		p
 			ul

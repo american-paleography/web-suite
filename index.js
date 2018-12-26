@@ -64,6 +64,14 @@ app.use(function(req, res, next) {
 	next();
 });
 
+app.use(function(req, res, next) {
+	res.locals.me = {
+		id: req.session.user_id,
+		username: req.session.username,
+	}
+	next();
+});
+
 app.get('/index', function(req, res) {
 	res.render('index');
 });
