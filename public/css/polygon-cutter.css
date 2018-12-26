@@ -7,3 +7,13 @@
 	border-radius: 10px;
 	border: 1px dashed black;
 }
+
+#current-text {
+	font-size: 150%;
+	color: black;
+}
+
+.infobox {
+	background-color: #ffb;
+	color: chocolate;
+}

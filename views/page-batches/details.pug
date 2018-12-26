@@ -18,7 +18,7 @@ block content
 				button#init-cutter(disabled="disabled") Initialize polygon cutting tool
 				button#save-polygon(disabled="disabled") Save current polygon
 				button#undo-segment(disabled="disabled") Undo last point/stroke
-			div
+			div#text-selector-area
 				p
 					="Mode:"
 					br
@@ -32,6 +32,9 @@ block content
 				p
 					table
 						tr#word-selector-area
+		span.infobox.draggable
+			="text: "
+			span#current-text
 		div(style="display: none;")
 			canvas#output-canvas
 			canvas#buffer(style="display: none;")

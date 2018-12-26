@@ -8,12 +8,14 @@ $(function() {
 		var tdiff = tpos - lastScrollPos.top;
 		var ldiff = lpos - lastScrollPos.left;
 
-		var toolbox = $('#tools');
+		$('.draggable').each((i, el) => {
+			var toolbox = $(el);
+			var offset = toolbox.offset();
+			offset.top += tdiff;
+			offset.left += ldiff;
+			toolbox.offset(offset);
+		})
 
-		var offset = toolbox.offset();
-		offset.top += tdiff;
-		offset.left += ldiff;
-		toolbox.offset(offset);
 
 		lastScrollPos = {top: tpos, left: lpos};
 	})
@@ -147,6 +149,29 @@ $(function() {
 	var valid_lines;
 	var active_line;
 
+	function getCurrentText(inc=false) {
+		var mode = $('[name=mode]:checked').val();
+		var ret = {};
+		if (mode == 'line') {
+			ret.text = active_line.text;
+			ret.start = 0;
+			ret.end = active_line.text.length;
+			if (inc) {
+				nextLine();
+			}
+		} else {
+			var sel = $('[name=word]:checked');
+			ret.text = sel.data('text');
+			ret.start = sel.data('start');
+			ret.end = sel.data('end');
+			if (inc) {
+				nextWord();
+			}
+		}
+
+		return ret;
+	}
+
 	function savePolygon() {
 		var data = $('#save-polygon').data('getterthing')();
 
@@ -156,22 +181,8 @@ $(function() {
 		}
 
 		data.file_id = FILE_ID;
-		data.transcription = {
-			line_id: active_line.line_id,
-		}
-		var mode = $('[name=mode]:checked').val();
-		if (mode == 'line') {
-			data.transcription.text = active_line.text;
-			data.transcription.start = 0;
-			data.transcription.end = active_line.text.length;
-			nextLine();
-		} else {
-			var sel = $('[name=word]:checked');
-			data.transcription.text = sel.data('text');
-			data.transcription.start = sel.data('start');
-			data.transcription.end = sel.data('end');
-			nextWord();
-		}
+		data.transcription = getCurrentText(true);
+		data.transcription.line_id = active_line.line_id;
 
 		$.post('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
@@ -216,6 +227,12 @@ $(function() {
 		updateCurrentLine();
 	}
 
+	$('#text-selector-area').on('change', '', updateTextReadout);
+
+	function updateTextReadout() {
+		$('#current-text').text(getCurrentText().text);
+	}
+
 	$('#line-selector').on('change', updateCurrentLine);
 
 	function updateCurrentLine() {
@@ -252,6 +269,8 @@ $(function() {
 
 			first = false;
 		}
+		
+		updateTextReadout();
 	}
 
 	function nextWord() {
@@ -261,6 +280,7 @@ $(function() {
 		} else {
 			nextLine();
 		}
+		updateTextReadout();
 	}
 
 	function nextLine() {
