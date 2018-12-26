@@ -239,6 +239,32 @@ app.get('/internal/todo-list', function(req, res) {
 		}
 	})
 })
+app.post('/internal/resolve-todo/:id', function(req, res) {
+	req.mysql.connect();
+
+	var good = false;
+	req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results, fields) {
+		try {
+			assert.ok(results[0]);
+			assert.equal(results[0].is_admin, true);
+			good = true;
+		} catch(e) {
+			req.mysql.destroy();
+		}
+	})
+
+	req.mysql.end(function() {
+		if (good) {
+			var funcs = require('./src/airtable-api.js');
+			funcs.base('Features/Bugs').update(req.params.id, {
+				Implemented: true,
+				Deployed: true,
+			})
+		} else {
+			res.redirect('/login');
+		}
+	})
+})
 
 app.get('/browse-lines', function(req, res) {
 	res.render('browse-lines');

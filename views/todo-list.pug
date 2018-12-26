@@ -1,6 +1,7 @@
 extends layout.pug
 
 block page_scripts
+	script(src="/js/todo-list.js")
 
 block content
 	ul
@@ -14,6 +15,8 @@ block content
 								strike= entry.fields.Name
 							else
 								=entry.fields.Name
+							span.spacer(style="margin-left: 3em;")
+							button.resolve(data-id=entry.id) resolve
 		li
 			strong= "uncategorized"
 			ul
