@@ -24,12 +24,14 @@ block content
 					br
 					="| "
 					each mode in ["line", "single-word"]
-						input(type="radio" name="mode" value=mode checked="checked")
+						input.mode-sel(type="radio" name="mode" value=mode checked="checked")
 						label= mode
 						=" | "
 				p
 					select#line-selector
-				p
+				p#word-mode
+					input(type="checkbox" name="strip-punctuation")
+					label No Punctuation
 					table
 						tr#word-selector-area
 		span.infobox.draggable

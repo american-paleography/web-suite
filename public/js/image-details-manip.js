@@ -162,6 +162,11 @@ $(function() {
 		} else {
 			var sel = $('[name=word]:checked');
 			ret.text = sel.data('text');
+			if ($('[name=strip-punctuation').is(':checked')) {
+				ret.text = ret.text.replace(/\W/g, '');
+			}
+
+			// uhhh... should I update these for punctuation omission...? hrm.
 			ret.start = sel.data('start');
 			ret.end = sel.data('end');
 			if (inc) {
@@ -225,6 +230,17 @@ $(function() {
 		});
 		
 		updateCurrentLine();
+		showHideWordArea();
+	}
+
+	$('.mode-sel').on('change', showHideWordArea);
+	function showHideWordArea() {
+		var mode = $('[name=mode]:checked').val();
+		if (mode == 'line') {
+			$('#word-mode').hide();
+		} else {
+			$('#word-mode').show();
+		}
 	}
 
 	$('#text-selector-area').on('change', '', updateTextReadout);
