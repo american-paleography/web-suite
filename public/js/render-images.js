@@ -1,4 +1,5 @@
-function setupPolygonCutter(container_selector, source, scale) {
+function setupPolygonCutter(container_selector, source, scale, rot) {
+	rot = -rot;
 	window.onerror = function(msg, file, line, offset, err) {
 		var out = err.stack;
 
@@ -11,15 +12,50 @@ function setupPolygonCutter(container_selector, source, scale) {
 
 	if (source instanceof Image) {
 		function drawTo(canvas) {
-			var width = source.width * scale;
-			var height = source.height * scale;
+			var right = source.width * scale;
+			var bottom = source.height * scale;
+
+			var corners = [
+				{x: 0, y: 0},
+				{x: right, y: 0},
+				{x: right, y: bottom},
+				{x: 0, y: bottom}
+			];
+
+			var c = Math.cos(-rot);
+			var s = Math.cos(-rot);
+
+			var rotCorners = corners.map(p => ({
+				x: p.x * c - p.y * s,
+				y: p.y * c + p.x * s,
+			}))
+
+			alert(JSON.stringify(rotCorners));
+
+			var xCoords = rotCorners.map(p => p.x).sort();
+			var yCoords = rotCorners.map(p => p.y).sort();
+
+			var width = xCoords.pop() - xCoords[0];
+			var height = yCoords.pop() - yCoords[0];
+
+			var cx = bottom * Math.sin(rot);
+
 			ui.canvas.width = canvas.width = width;
 			ui.canvas.height = canvas.height = height;
 			$(container_selector).width(width + 50);
 			$(container_selector).height(height + 50);
 
-			ui.ctx.scale(scale, scale);
-			bg.ctx.scale(scale, scale);
+			var xdiff = (width - right)/(2);
+			var ydiff = (height - bottom)/(2);
+			//alert(xdiff);
+
+			[ui.ctx, bg.ctx].forEach(ctx => {
+				ctx.scale(scale, scale);
+				ctx.translate(xdiff, -ydiff);
+				ctx.translate(width/2, height/2);
+				ctx.rotate(rot);
+				ctx.translate(-width/2, -height/2);
+			})
 
 			canvas.getContext('2d').drawImage(source, 0, 0);
 		}
@@ -34,6 +70,9 @@ function setupPolygonCutter(container_selector, source, scale) {
 
 			ui.ctx.scale(scale, scale);
 			bg.ctx.scale(scale, scale);
+
+			bg.ctx.rotate(rot);
+			ui.ctx.rotate(rot);
 			
 			var imgData = source.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
 			canvas.getContext('2d').putImageData(imgData, 0, 0);

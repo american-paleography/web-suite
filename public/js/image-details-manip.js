@@ -123,7 +123,7 @@ $(function() {
 			}
 		})();
 
-		var {getter, undo, setPrecuts, incScale, getScale} = setupPolygonCutter('#cutter', '#source', scale);
+		var {getter, undo, setPrecuts, incScale, getScale} = setupPolygonCutter('#cutter', '#source', scale, Math.PI / 8);
 		$('#save-polygon').data('getterthing', getter);
 		$('#undo-segment').data('func', undo);
 		$('#cutter').data('inc-scale', incScale);
