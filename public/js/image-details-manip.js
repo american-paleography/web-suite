@@ -1,4 +1,7 @@
 $(function() {
+	var alreadyCutWords = {};
+
+
 	$('.draggable').draggable()
 	var lastScrollPos = { top: 0, left: 0};
 	$(document).on('scroll', function() {
@@ -80,6 +83,10 @@ $(function() {
 		el.scrollTop(newVal);
 	}
 
+	// LOAD ORDER:
+	// 1. page ID
+	// 2. polygon data (it gets referenced in line-data and in cutter canvas)
+	// 3. ajax for line data, and init cutter
 	$('#source').on('load', function() {
 		$.get('/ajax/page-id-for/' + image_path, function(data) {
 			if (data.ok) {
@@ -89,10 +96,20 @@ $(function() {
 				$('#file_id_readout').text('file ID: ' + data.id);
 				FILE_ID = data.id;
 
-				$.get('/ajax/lines-for-file/' + data.id, function(data) {
-					useLines(data.lines);
-				});
-				initCutter();
+				$.get('/ajax/polygons-for-file/' + FILE_ID, function(data) {
+					precuts = data.polygons;
+
+					precuts.forEach(poly => {
+						if (poly.text) {
+							alreadyCutWords[poly.text.toLowerCase().replace(/\W/g, '')] = true;
+						}
+					})
+
+					$.get('/ajax/lines-for-file/' + FILE_ID, function(data) {
+						useLines(data.lines);
+					});
+					initCutter();
+				})
 			} else {
 				alert("Couldn't get page metadata");
 			}
@@ -133,11 +150,6 @@ $(function() {
 
 		if (precuts) {
 			setPrecuts(precuts);
-		} else {
-			$.get('/ajax/polygons-for-file/' + FILE_ID, function(data) {
-				precuts = data.polygons;
-				setPrecuts(precuts);
-			})
 		}
 	}
 
@@ -276,6 +288,9 @@ $(function() {
 			opt.data('end', end);
 
 			var label = $('<label>');
+			if (alreadyCutWords[word.toLowerCase().replace(/\W/g, '')]) {
+				label.addClass('already-cut');
+			}
 			label.text(word);
 			var cell = $('<td>');
 			cell.append(opt);

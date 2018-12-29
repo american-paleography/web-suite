@@ -124,10 +124,10 @@ module.exports = {
 		app.get('/ajax/polygons-for-file/:file_id', function(req, res) {
 			req.mysql.connect()
 			
-			req.mysql.query('SELECT points, line_id FROM cut_polygons WHERE file_id = ?', [req.params.file_id], function(err, results) {
+			req.mysql.query('SELECT points, line_id, text FROM cut_polygons WHERE file_id = ?', [req.params.file_id], function(err, results) {
 				console.log(err);
 				var polygons = results.map(row => {
-					return { points: JSON.parse(row.points), line_id: row.line_id };
+					return { points: JSON.parse(row.points), line_id: row.line_id, text: row.text };
 				});
 				
 				res.send({polygons});
