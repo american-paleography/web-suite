@@ -198,7 +198,7 @@ $(function() {
 		}
 
 		data.file_id = FILE_ID;
-		data.transcription = getCurrentText(true);
+		data.transcription = getCurrentText(false); // I originally had this incrementing the word/line, but that caused issues when canceling a save
 		data.transcription.line_id = active_line.line_id;
 
 		$.post('/ajax/save-cut-polygon', data, function(res) {
@@ -209,6 +209,7 @@ $(function() {
 					var keep = confirm(text + "\n\nKeep saved polygon?");
 					if (keep) {
 						initCutter();
+						getCurrentText(true); // okay, let's increment HERE
 					} else {
 						$.post('/ajax/delete-polygon/' + res.id, function(res) {
 							if (res.ok) {
@@ -221,6 +222,7 @@ $(function() {
 				} else {
 					alert(text + "\n\nHowever, couldn't find ID for new polygon.");
 					initCutter();
+						getCurrentText(true); // and I guess also increment here?
 				}
 			} else {
 				alert("Failed to save polygon!");
