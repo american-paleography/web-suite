@@ -41,24 +41,10 @@ app.use(bodyParser());
 
 app.use(express.static("public"));
 
+var dbUtils = require('./src/db_util.js');
+
 app.use(function(req, res, next) {
-	req.mysql = mysql.createConnection(CREDS.mysql);
-	req.mysql.upsert = function(table, obj, callback) {
-		var field_names = Object.keys(obj);
-		var values = field_names.map(f => obj[f]);
-		var sql = `
-			INSERT INTO ${table}(${field_names.join(",")})
-			VALUES (${field_names.map(x => "?").join(",")})
-			ON DUPLICATE KEY UPDATE ${field_names.map(f => `${f} = values(${f})`).join(',')}
-			;
-		`;
-
-		this.query(sql, values, callback);
-	}
-
-	req.mysql.unroll = function(nameToFieldMapping) {
-		return Object.keys(nameToFieldMapping).map(n => `${nameToFieldMapping[n]} AS ${n}`).join(',');
-	}
+	req.mysql = dbUtils.createConnection();
 
 	next();
 });
