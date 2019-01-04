@@ -55,6 +55,11 @@ app.use(function(req, res, next) {
 
 		this.query(sql, values, callback);
 	}
+
+	req.mysql.unroll = function(nameToFieldMapping) {
+		return Object.keys(nameToFieldMapping).map(n => `${nameToFieldMapping[n]} AS ${n}`).join(',');
+	}
+
 	next();
 });
 
@@ -69,6 +74,8 @@ app.use(function(req, res, next) {
 		id: req.session.user_id,
 		username: req.session.username,
 	}
+
+	res.locals.base_path = '/';
 	next();
 });
 
@@ -435,5 +442,7 @@ require('./src/auth.js').use(app);
 
 require('./src/image-browsing.js').use(app)
 require('./src/line-data-access.js').use(app);
+
+require ('./src/exhibits/winterthur.js').use(app);
 
 app.listen(43746, () => console.log("Listening on port 43746"));
