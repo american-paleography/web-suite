@@ -62,6 +62,45 @@ module.exports = {
 			req.mysql.end();
 		})
 
+		router.get('/ajax/polygons-for/:word', function(req, res) {
+			var word = req.params.word;
+
+			var query = `
+				SELECT
+					po.points,
+					f.name as filename,
+					pr.name as projname
+				FROM
+						words as w
+					LEFT JOIN
+						cut_polygons as po
+					ON
+						po.word_id = w.id
+					LEFT JOIN
+						files as f
+					ON
+						f.id = po.file_id
+					LEFT JOIN
+						projects as pr
+					ON
+						pr.id = f.project
+				WHERE
+					w.lc_text = ?
+				;
+			`;
+
+			req.mysql.connect();
+			req.mysql.query(query, [word], function(err, results) {
+				if (err) { console.log(err); }
+
+				results.forEach(p => p.points = JSON.parse(p.points));
+
+				res.send({polygons: results});
+			})
+
+			req.mysql.end();
+		})
+
 		return;
 
 		app.get('/page-batches/list', function(req, res) {
