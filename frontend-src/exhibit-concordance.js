@@ -21,32 +21,6 @@ $(function() {
 
 		return;
 
-		Object.keys(batches).sort().forEach(group => {
-			var groupLI = $('<li>');
-			var batchName = $('<span>');
-			batchName.text(group + ": ");
-			groupLI.append(batchName);
-
-			var groupList = $('<ul>');
-
-			batches[group].forEach(word => {
-				var li = $('<li>');
-				
-				var text = $('<span>');
-				text.text(word.text);
-				li.append(text);
-
-				var meta = $('<span>');
-				meta.text(` polygon count: ${word.poly_count}, full count: ${word.full_count}`);
-				li.append(meta);
-
-				groupList.append(li);
-			})
-
-			groupLI.append(groupList);
-			ul.append(groupLI);
-		})
-
 		data.forEach(word => {
 			var li = $('<li>');
 			var path = [word.line.projname, word.line.filename].join('/');
