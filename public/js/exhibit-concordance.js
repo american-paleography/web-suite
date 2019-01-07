@@ -1,12 +1,60 @@
 $(function() {
 	window.onerror = alert;
-	$.get('ajax/word-concordance', function(data) {
+	$.get('ajax/lexicon', function(data) {
 		var ul = $('#wordlist');
 
 		var images = {
 		}
 
-		alert(JSON.stringify(data[0].poly));
+		var batches = {
+			
+		};
+
+		var letters = [];
+		for (var i = 0; i < 26; ++i) {
+			letters.push(String.fromCharCode('a'.charCodeAt(0) + i));
+		}
+		data.words.forEach(word => {
+			var char = word.text[0];
+			var group = 'Symbols';
+			if (letters.includes(char)) {
+				group = `Letter '${char}'`;
+			} else if (char.match(/[1-90]/)) {
+				group = 'Numbers';
+			}
+
+			if (!batches[group]) {
+				batches[group] = [];
+			}
+			batches[group].push(word);
+		})
+
+		Object.keys(batches).sort().forEach(group => {
+			var groupLI = $('<li>');
+			var batchName = $('<span>');
+			batchName.text(group + ": ");
+			groupLI.append(batchName);
+
+			var groupList = $('<ul>');
+
+			batches[group].forEach(word => {
+				var li = $('<li>');
+				
+				var text = $('<span>');
+				text.text(word.text);
+				li.append(text);
+
+				var meta = $('<span>');
+				meta.text(` polygon count: ${word.poly_count}, full count: ${word.full_count}`);
+				li.append(meta);
+
+				groupList.append(li);
+			})
+
+			groupLI.append(groupList);
+			ul.append(groupLI);
+		})
+		return;
 
 		data.forEach(word => {
 			var li = $('<li>');

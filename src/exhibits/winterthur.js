@@ -33,6 +33,35 @@ module.exports = {
 			})
 		})
 
+		router.get('/ajax/lexicon', function(req, res) {
+			req.mysql.connect();
+
+			var query = `
+				SELECT
+					*
+				FROM (
+					SELECT
+						w.lc_text AS text,
+						(SELECT count(*) FROM cut_polygons p WHERE p.word_id = w.id) AS poly_count,
+						(SELECT count(*) FROM words_lines_join j WHERE j.word_id = w.id) AS full_count
+					FROM
+						words w
+					ORDER BY w.lc_text ASC
+				) AS lexicon
+				WHERE poly_count > 0
+				;
+			`;
+
+			req.mysql.query(query, function(err, results) {
+				if (err) {
+					console.log(err);
+				}
+				res.send({words: results});
+			});
+			
+			req.mysql.end();
+		})
+
 		return;
 
 		app.get('/page-batches/list', function(req, res) {
