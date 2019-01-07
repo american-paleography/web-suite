@@ -152,16 +152,34 @@ class Lexicon extends React.Component {
 		groups = groups.map(groupName => {
 			var words = this.state.batches[groupName];
 			return (
-				<li>
-					{groupName} ({words.length} entries)
-					<WordList words={words} />
-				</li>
+				<AlphabetGroup folder={groupName} words={words} />
 			)
 		})
 		return (
 			<ul>
 				{groups}
 			</ul>
+		)
+	}
+}
+
+class AlphabetGroup extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = { expand: false, };
+	}
+
+	render() {
+		var showHide = this.state.expand ? '' : 'hidden';
+		var words = this.props.words;
+		return (
+			<li>
+				<span class="" onClick={e => this.setState({expand: !this.state.expand})}>
+					{this.props.folder} ({words.length} entries)
+				</span>
+				<WordList class={showHide} words={words} />
+			</li>
 		)
 	}
 }
@@ -184,7 +202,7 @@ class WordList extends React.Component {
 			)
 		})
 		return (
-			<ul>
+			<ul class={this.props.class}>
 				{items}
 			</ul>
 		)
