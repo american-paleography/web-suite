@@ -1,33 +1,25 @@
+'use strict';
+
+$(function() {
+	$.get('/dev/images/get-data', function(data) {
+	});
+})
+
+
+const e = React.createElement;
+
 $(function() {
 	window.onerror = alert;
 	$.get('ajax/lexicon', function(data) {
-		var ul = $('#wordlist');
-
 		var images = {
 		}
 
-		var batches = {
-			
-		};
+		const domContainer = document.querySelector('#wordlist');
+		$(domContainer).empty();
 
-		var letters = [];
-		for (var i = 0; i < 26; ++i) {
-			letters.push(String.fromCharCode('a'.charCodeAt(0) + i));
-		}
-		data.words.forEach(word => {
-			var char = word.text[0];
-			var group = 'Symbols';
-			if (letters.includes(char)) {
-				group = `Letter '${char}'`;
-			} else if (char.match(/[1-90]/)) {
-				group = 'Numbers';
-			}
+		ReactDOM.render(e(Lexicon, {words: data.words}), domContainer);
 
-			if (!batches[group]) {
-				batches[group] = [];
-			}
-			batches[group].push(word);
-		})
+		return;
 
 		Object.keys(batches).sort().forEach(group => {
 			var groupLI = $('<li>');
@@ -54,7 +46,6 @@ $(function() {
 			groupLI.append(groupList);
 			ul.append(groupLI);
 		})
-		return;
 
 		data.forEach(word => {
 			var li = $('<li>');
@@ -147,3 +138,81 @@ $(function() {
 		return [left, top, width, height];
 	}
 })
+
+class Lexicon extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {};
+
+		this.processWords(this.props.words);
+	}
+
+	processWords(words) {
+		var batches = {};
+
+		var letters = [];
+		for (var i = 0; i < 26; ++i) {
+			letters.push(String.fromCharCode('a'.charCodeAt(0) + i));
+		}
+		words.forEach(word => {
+			var char = word.text[0];
+			var group = 'Symbols';
+			if (letters.includes(char)) {
+				group = `Letter '${char}'`;
+			} else if (char.match(/[1-90]/)) {
+				group = 'Numbers';
+			}
+
+			if (!batches[group]) {
+				batches[group] = [];
+			}
+			batches[group].push(word);
+		})
+
+		this.state = { batches };
+	}
+
+	render() {
+		var groups = Object.keys(this.state.batches).sort();
+		groups = groups.map(groupName => {
+			var words = this.state.batches[groupName];
+			return (
+				<li>
+					{groupName} ({words.length} entries)
+					<WordList words={words} />
+				</li>
+			)
+		})
+		return (
+			<ul>
+				{groups}
+			</ul>
+		)
+	}
+}
+
+class WordList extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = { words: this.props.words, };
+	}
+
+	render() {
+		var items = this.state.words.map(word => {
+			return (
+				<li class="lexical-entry">
+					<span class="headword">{word.text}</span>
+					<span class="meta-info">{word.poly_count} polygons</span>
+					<span class="meta-info">{word.full_count} occurrences</span>
+				</li>
+			)
+		})
+		return (
+			<ul>
+				{items}
+			</ul>
+		)
+	}
+}

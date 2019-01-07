@@ -7,3 +7,4 @@ public/word_images/*.png
 # transpiled/compiled JS
 public/js/concordance.js
 public/js/classify-image-guesses.js
+public/js/exhibit-concordance.js

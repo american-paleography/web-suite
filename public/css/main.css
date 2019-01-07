@@ -107,3 +107,10 @@ table.bordered td
     top: 0px;
     left: 0px;
 }
+
+.lexical-entry .meta-info {
+	font-size: 60%;
+	color: #aaa;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+}
