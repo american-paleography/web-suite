@@ -1,6 +1,8 @@
 $(function() {
 	var alreadyCutWords = {};
 
+	const puncStripRegex = /[^\w']/g;
+
 
 	$('.draggable').draggable()
 	var lastScrollPos = { top: 0, left: 0};
@@ -101,7 +103,7 @@ $(function() {
 
 					precuts.forEach(poly => {
 						if (poly.text) {
-							alreadyCutWords[poly.text.toLowerCase().replace(/\W/g, '')] = true;
+							alreadyCutWords[poly.text.toLowerCase().replace(puncStripRegex, '')] = true;
 						}
 					})
 
@@ -175,7 +177,7 @@ $(function() {
 			var sel = $('[name=word]:checked');
 			ret.text = sel.data('text');
 			if ($('[name=strip-punctuation').is(':checked')) {
-				ret.text = ret.text.replace(/\W/g, '');
+				ret.text = ret.text.replace(puncStripRegex, '');
 			}
 
 			// uhhh... should I update these for punctuation omission...? hrm.
@@ -290,7 +292,7 @@ $(function() {
 			opt.data('end', end);
 
 			var label = $('<label>');
-			if (alreadyCutWords[word.toLowerCase().replace(/\W/g, '')]) {
+			if (alreadyCutWords[word.toLowerCase().replace(puncStripRegex, '')]) {
 				label.addClass('already-cut');
 			}
 			label.text(word);
