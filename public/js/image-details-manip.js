@@ -95,7 +95,7 @@ $(function() {
 				$('button').attr('disabled', null);
 
 				$('#cutter').show();
-				$('#file_id_readout').text('file ID: ' + data.id);
+				$('#file_id_readout').text('File ID: ' + data.id);
 				FILE_ID = data.id;
 
 				$.get('/ajax/polygons-for-file/' + FILE_ID, function(data) {
