@@ -2,10 +2,12 @@ var dbUtils = require('../src/db_util.js');
 
 var mysql = dbUtils.createConnection();
 
+var textUtils = require('../src/text-utils.js');
+
 // probably horribly inefficient (and definitely doesn't close the connection...), so run this *manually* right now
 mysql.query('SELECT id, text, word_id FROM cut_polygons WHERE text IS NOT NULL', function(err, results) {
 	results.forEach(poly => {
-		var norm_text = poly.text.toLowerCase();
+		var norm_text = textUtils.normalizeHeadword(poly.text);
 
 		mysql.query('SELECT id FROM words WHERE lc_text = ?', [norm_text], function(err, results) {
 			if (results[0]) {

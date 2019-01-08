@@ -67,12 +67,12 @@ function createConnection() {
 	sess.getWordId = function(text, callback) {
 		this.query('SELECT id FROM words WHERE lc_text = ?', [text], function(err, results) {
 			if (results) {
-				callback(results[0].id]);
+				callback(results[0].id);
 			} else {
 				this.query('INSERT INTO words(lc_text) VALUES (?)', [text], function(err, results) {
 					this.query('SELECT id FROM words WHERE lc_text = ?', [text], function(err, results) {
 						callback(results[0].id);
-					}
+					})
 				})
 			}
 		})
