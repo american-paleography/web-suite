@@ -52,29 +52,33 @@ module.exports = {
 			var {file_id, points, undo_indices, transcription} = req.body;
 			var {line_id, text, start, end} = transcription
 
+			var norm_text = text.toLowerCase();
+
 			var creator_id = req.session.user_id;
 			if (!creator_id || typeof creator_id != 'number') {
 				creator_id = null;
 			}
 
-			req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end, creator_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end, creator_id], function(err, results) {
-				if (err) {
-					console.log(err);
-					res.send({ok:false});
-				} else {
-					req.mysql.query('SELECT LAST_INSERT_ID() AS id', function(err, results) {
-						if (err) {
-							console.log(err);
-							res.send({ok:true});
-						} else {
-							console.log(results);
-							res.send({ok:true, id: results[0].id});
-						}
-					})
-				}
+			req.mysql.getWordId(norm_text, function(word_id) {
+				req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end, creator_id, word_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end, creator_id, word_id], function(err, results) {
+					if (err) {
+						console.log(err);
+						res.send({ok:false});
+					} else {
+						req.mysql.query('SELECT LAST_INSERT_ID() AS id', function(err, results) {
+							if (err) {
+								console.log(err);
+								res.send({ok:true});
+							} else {
+								console.log(results);
+								res.send({ok:true, id: results[0].id});
+							}
+						})
+					}
 
-				req.mysql.end();
-			});
+					req.mysql.end();
+				});
+			})
 		})
 
 		app.post('/ajax/delete-polygon/:polygon_id', function(req, res) {
