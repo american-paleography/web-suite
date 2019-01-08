@@ -1,8 +1,26 @@
 const assert = require('assert').strict;
 var fs = require('fs');
+var polygonImageDir = './data/polygon-images';
+var ImageSlicer = require('./image-slicer.js');
 
 module.exports = {
 	use: function(app) {
+		app.get('/poly-images/:poly_id', function(req, res) {
+			console.log("checking for polygon image");
+			var poly_id = req.params.poly_id;
+			var path = `${polygonImageDir}/${poly_id}.png`;
+			fs.exists(path, function(exists) {
+				console.log(`exists: ${exists}`);
+				if (exists) {
+					res.sendfile(path);
+				} else {
+					ImageSlicer.slice_polygon(poly_id, path, function() {
+						res.sendfile(path);
+					})
+				}
+			})
+		})
+
 		app.get('/page-batches/list', function(req, res) {
 			req.mysql.connect();
 

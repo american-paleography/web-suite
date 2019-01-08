@@ -231,10 +231,9 @@ class WordImageList extends React.Component {
 		var {polygons} = this.state;
 
 		var images = polygons.map(p => {
-			var path = [p.projname, p.filename].join('/');
-
+			var src = `/poly-images/${p.id}`
 			return (
-				<WordImage points={p.points} path={path} />
+				<img src={src} />
 			)
 		})
 
