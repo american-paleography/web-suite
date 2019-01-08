@@ -52,7 +52,9 @@ module.exports = {
 			var {file_id, points, undo_indices, transcription} = req.body;
 			var {line_id, text, start, end} = transcription
 
-			var norm_text = text.toLowerCase();
+			var textUtils = require('./src/text-utils.js');
+
+			var norm_text = textUtils.normalizeHeadword(text);
 
 			var creator_id = req.session.user_id;
 			if (!creator_id || typeof creator_id != 'number') {
