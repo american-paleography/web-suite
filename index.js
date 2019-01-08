@@ -69,6 +69,10 @@ app.get('/index', function(req, res) {
 	res.render('index');
 });
 
+app.get('/help/user-access', function(req, res) {
+	res.render('help_user-access');
+})
+
 app.get('/update-file-metadata', function(req, res) {
 	res.render('update-file-metadata');
 })
