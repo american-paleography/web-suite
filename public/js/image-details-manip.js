@@ -244,6 +244,12 @@ $(function() {
 			opt.text(`[${line.line_num + 1}]: ${line.text}`);
 			line_sel.append(opt);
 		});
+
+		var cont = $('#tools');
+		alert([line_sel.width(), cont.width()]);
+		if (line_sel.width() > cont.width()) {
+			cont.width(line_sel.width());
+		}
 		
 		updateCurrentLine();
 		showHideWordArea();
