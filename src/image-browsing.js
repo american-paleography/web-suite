@@ -2,6 +2,8 @@ const assert = require('assert').strict;
 var fs = require('fs');
 var polygonImageDir = './data/polygon-images';
 var ImageSlicer = require('./image-slicer.js');
+var textUtils = require('./text-utils.js');
+
 
 module.exports = {
 	use: function(app) {
@@ -69,8 +71,6 @@ module.exports = {
 		app.post('/ajax/save-cut-polygon', function(req, res) {
 			var {file_id, points, undo_indices, transcription} = req.body;
 			var {line_id, text, start, end} = transcription
-
-			var textUtils = require('./src/text-utils.js');
 
 			var norm_text = textUtils.normalizeHeadword(text);
 
