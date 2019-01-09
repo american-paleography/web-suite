@@ -246,7 +246,6 @@ $(function() {
 		});
 
 		var cont = $('#tools');
-		alert([line_sel.width(), cont.width()]);
 		if (line_sel.width() > cont.width()) {
 			cont.width(line_sel.width());
 		}
