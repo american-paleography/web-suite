@@ -1,11 +1,5 @@
 'use strict';
 
-$(function() {
-	$.get('/dev/images/get-data', function(data) {
-	});
-})
-
-
 const e = React.createElement;
 
 function cutPolygon(points, source, buffer, output) {
@@ -69,6 +63,7 @@ $(function() {
 		return;
 	})
 
+	window.IS_EDITOR = !!parseInt($('[name=edit_privs]').val());
 })
 
 class Lexicon extends React.Component {
@@ -232,9 +227,17 @@ class WordImageList extends React.Component {
 
 		var images = polygons.map(p => {
 			var src = `/poly-images/${p.id}`
-			return (
-				<img src={src} />
-			)
+			if (IS_EDITOR) {
+				return (
+					<a href={"/polygon/"+p.id}>
+						<img src={src} />
+					</a>
+				)
+			} else {
+				return (
+					<img src={src} />
+				)
+			}
 		})
 
 		return (

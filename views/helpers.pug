@@ -4,3 +4,9 @@ mixin link(path)
 
 mixin js(path)
 	script(src=path)
+
+
+mixin bool(name, val)
+	input(type="hidden" name=name value=(val ? 1 : 0))
+mixin val(name, val)
+	input(type="hidden" name=name value=val)

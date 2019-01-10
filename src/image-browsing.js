@@ -8,11 +8,9 @@ var textUtils = require('./text-utils.js');
 module.exports = {
 	use: function(app) {
 		app.get('/poly-images/:poly_id', function(req, res) {
-			console.log("checking for polygon image");
 			var poly_id = req.params.poly_id;
 			var path = `${polygonImageDir}/${poly_id}.png`;
 			fs.exists(path, function(exists) {
-				console.log(`exists: ${exists}`);
 				if (exists) {
 					res.sendfile(path);
 				} else {
@@ -20,6 +18,22 @@ module.exports = {
 						res.sendfile(path);
 					})
 				}
+			})
+		})
+
+		app.get('/polygon/:poly_id', function(req, res) {
+			var {poly_id} = req.params;
+
+			req.mysql.connect()
+
+			req.mysql.query('SELECT text FROM cut_polygons WHERE id = ?', [poly_id], function(err, results) {
+				if (results[0]) {
+					res.locals.poly_text = results[0].text;
+				}
+			})
+
+			req.mysql.end(function() {
+				res.render('manage-polygon', {poly_id});
 			})
 		})
 

@@ -19,7 +19,18 @@ module.exports = {
 		})
 
 		router.get('/concordance', function(req, res) {
-			res.render('exhibit-concordance');
+			req.mysql.connect();
+
+			if (req.session.user_id) {
+				req.mysql.query('SELECT is_admin FROM users WHERE id = ?', [req.session.user_id], function(err, results) {
+					res.locals.has_edit_privs = results && results[0] && results[0].is_admin;
+				})
+			}
+
+			req.mysql.end(function() {
+				res.render('exhibit-concordance');
+			});
+
 		});
 
 		router.get('/ajax/word-concordance', function(req, res) {

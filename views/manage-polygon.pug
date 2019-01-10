@@ -1,0 +1,15 @@
+extends layout.pug
+
+block page_scripts
+	+js("/js/manage-polygon.js")
+
+block content
+	+val("poly_id", poly_id)
+	p
+		| Image:
+		img(src=("/poly-images/" + poly_id))
+	p
+		| Text:
+		pre=poly_text
+	p
+		button#delete-polygon Delete Polygon
