@@ -1,0 +1,3 @@
+ALTER TABLE files
+	ADD COLUMN sha256 CHAR(64)
+;
