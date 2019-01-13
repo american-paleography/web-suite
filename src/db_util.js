@@ -69,8 +69,8 @@ function createConnection() {
 			if (results && results[0]) {
 				callback(results[0].id);
 			} else {
-				this.query('INSERT INTO words(lc_text) VALUES (?)', [text], function(err, results) {
-					this.query('SELECT id FROM words WHERE lc_text = ?', [text], function(err, results) {
+				sess.query('INSERT INTO words(lc_text) VALUES (?)', [text], function(err, results) {
+					sess.query('SELECT id FROM words WHERE lc_text = ?', [text], function(err, results) {
 						callback(results[0].id);
 					})
 				})
