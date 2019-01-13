@@ -1,7 +1,7 @@
 $(function() {
 	var alreadyCutWords = {};
 
-	const puncStripRegex = /[^\w']/g;
+	const puncStripRegex = /[^\w'&]/g;
 
 
 	$('.draggable').draggable()
