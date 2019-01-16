@@ -281,10 +281,12 @@ $(function() {
 			$.get('/winterthur/ajax/polygons-for/' + word, function(data) {
 				wi.empty();
 				wi.text(`"${word}":`);
+				var holder = $('<div class="imagebox">');
+				wi.append(holder);
 				data.polygons.forEach(poly => {
 					var img = $('<img>');
 					img.attr('src', '/poly-images/' + poly.id);
-					wi.append(img);
+					holder.append(img);
 				})
 			});
 		}

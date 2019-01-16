@@ -2,6 +2,19 @@
 	width: 400px;
 }
 
+#word-image-holder {
+	display: inline-block;
+}
+
+#same-word-images .imagebox {
+	max-width: 400px;
+	max-height: 400px;
+	overflow: auto;
+}
+#same-word-images .imagebox img {
+	max-width: 180px;
+}
+
 .draggable {
 	padding: 1em;
 	border-radius: 10px;

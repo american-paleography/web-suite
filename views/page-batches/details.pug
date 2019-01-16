@@ -37,9 +37,10 @@ block content
 		span.infobox.draggable
 			="text: "
 			span#current-text
-		div.infobox.draggable
-			="images:"
-			div#same-word-images
+		div
+			div.infobox.draggable#word-image-holder
+				="images:"
+				p#same-word-images
 		div(style="display: none;")
 			canvas#output-canvas
 			canvas#buffer(style="display: none;")
