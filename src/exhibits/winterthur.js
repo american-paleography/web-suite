@@ -79,7 +79,6 @@ module.exports = {
 			var query = `
 				SELECT
 					po.id as id,
-					po.points,
 					f.name as filename,
 					pr.name as projname
 				FROM
