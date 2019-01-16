@@ -102,9 +102,9 @@ module.exports = {
 
 			req.mysql.connect();
 			req.mysql.query(query, [word], function(err, results) {
-				if (err) { console.log(err); }
-
-				results.forEach(p => p.points = JSON.parse(p.points));
+				if (err) {
+					console.log(err);
+				}
 
 				res.send({polygons: results});
 			})
