@@ -268,6 +268,26 @@ $(function() {
 
 	function updateTextReadout() {
 		$('#current-text').text(getCurrentText().text);
+
+		var wi = $('#same-word-images');
+		wi.empty();
+		var mode = $('[name=mode]:checked').val();
+		if (mode == "line") {
+			wi.text('not applicable');
+		} else {
+			wi.text('loading...');
+			var word = getCurrentText().text;
+			// TODO make this not linked to a single exhibit
+			$.get('/winterthur/ajax/polygons-for/' + word, function(data) {
+				wi.empty();
+				wi.text(`"${word}":`);
+				data.polygons.forEach(poly => {
+					var img = $('<img>');
+					img.attr('src', '/poly-images/' + poly.id);
+					wi.append(img);
+				})
+			});
+		}
 	}
 
 	$('#line-selector').on('change', updateCurrentLine);
