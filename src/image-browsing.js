@@ -21,6 +21,26 @@ module.exports = {
 			})
 		})
 
+		app.get('/editor/docsets', function(req, res) {
+			req.mysql.connect();
+
+			req.mysql.query('SELECT ds.id AS id, ds.name AS set_name, u.username AS creator_name FROM docsets ds LEFT JOIN users u ON u.id = ds.creator_id', function(err, results) {
+				res.locals.docsets = results;
+			})
+
+			req.mysql.end(function() {
+				res.render('docsets');
+			})
+		})
+
+		app.post('/editor/ajax/create-docset', function(req, res) {
+			req.mysql.connect()
+
+			req.mysql.query('INSERT INTO docsets(name, creator_id) VALUES (?, ?)', [req.body.name, req.session.user_id]);
+
+			req.mysql.end();
+		})
+
 		app.get('/polygon/:poly_id', function(req, res) {
 			var {poly_id} = req.params;
 

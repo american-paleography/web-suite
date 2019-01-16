@@ -1,0 +1,14 @@
+extend layout.pug
+
+block content
+	p
+		form(action="/editor/ajax/create-docset" method="POST")
+			input(name="name" placeholder="name")
+			button(type="submit") Create
+	table
+		each set in docsets
+			tr
+				td= set.id
+				td= set.set_name
+				td= set.creator_name
+		
