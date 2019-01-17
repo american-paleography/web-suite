@@ -4,6 +4,7 @@ var polygonImageDir = './data/polygon-images';
 var ImageSlicer = require('./image-slicer.js');
 var textUtils = require('./text-utils.js');
 
+var {robustify} = require('./robustify.js');
 
 module.exports = {
 	use: function(app) {
@@ -24,9 +25,9 @@ module.exports = {
 		app.get('/editor/docsets', function(req, res) {
 			req.mysql.connect();
 
-			req.mysql.query('SELECT ds.id AS id, ds.name AS set_name, u.username AS creator_name FROM docsets ds LEFT JOIN users u ON u.id = ds.creator_id', function(err, results) {
-				res.locals.docsets = results;
-			})
+			robustify(cb => {
+				req.mysql.query('SELECT ds.id AS id, ds.name AS set_name, u.username AS creator_name FROM docsets ds LEFT JOIN users u ON u.id = ds.creator_id', cb)
+			}).then(results => res.locals.docsets = results);
 
 			req.mysql.end(function() {
 				res.render('docsets');
