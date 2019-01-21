@@ -25,9 +25,8 @@ module.exports = {
 		app.get('/editor/docsets', function(req, res) {
 			req.mysql.connect();
 
-			robustify(cb => {
-				req.mysql.query('SELECT ds.id AS id, ds.name AS set_name, u.username AS creator_name FROM docsets ds LEFT JOIN users u ON u.id = ds.creator_id', cb)
-			}).then(results => res.locals.docsets = results);
+			req.mysql.promQuery('SELECT ds.id AS id, ds.name AS set_name, u.username AS creator_name FROM docsets ds LEFT JOIN users u ON u.id = ds.creator_id')
+			.then(results => res.locals.docsets = results);
 
 			req.mysql.end(function() {
 				res.render('docsets');

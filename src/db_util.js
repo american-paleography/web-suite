@@ -8,8 +8,15 @@ var CREDS = {
 	mysql: JSON.parse(fs.readFileSync('conf/mysql.creds')),
 }
 
+var {robustify} = require('./robustify.js');
+
 function createConnection() {
 	var sess = mysql.createConnection(CREDS.mysql);
+
+	sess.promQuery = function(...args) {
+		return robustify(cb => this.query(...args, cb));
+	}
+
 	sess.upsert = function(table, obj, callback) {
 		var field_names = Object.keys(obj);
 		var values = field_names.map(f => obj[f]);
