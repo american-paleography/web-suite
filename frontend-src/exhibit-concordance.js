@@ -226,24 +226,50 @@ class WordImageList extends React.Component {
 		var {polygons} = this.state;
 
 		var images = polygons.map(p => {
-			var src = `/poly-images/${p.id}`
-			if (IS_EDITOR) {
-				return (
-					<a href={"/polygon/"+p.id}>
-						<img src={src} />
-					</a>
-				)
-			} else {
-				return (
-					<img src={src} />
-				)
-			}
+			return (
+				<AnnotatedWordImage polygon={p} />
+			)
 		})
 
 		return (
-			<span>
+			<table class="bordered">
 				{images}
-			</span>
+			</table>
+		)
+	}
+}
+
+class AnnotatedWordImage extends React.Component {
+	render() {
+		var poly = this.props.polygon;
+		var src = `/poly-images/${poly.id}`
+		
+		var img = IS_EDITOR ? (
+			<a href={"/polygon/"+poly.id}>
+				<img src={src} />
+			</a>
+		) : (
+			<img src={src} />
+		)
+
+		return (
+			<tr>
+				<td>
+					{img}
+				</td>
+				<td>
+					{poly.year}
+				</td>
+				<td>
+					{poly.author_name}
+				</td>
+				<td>
+					{poly.author_gender}
+				</td>
+				<td>
+					{poly.location}
+				</td>
+			</tr>
 		)
 	}
 }

@@ -80,7 +80,11 @@ module.exports = {
 				SELECT
 					po.id as id,
 					f.name as filename,
-					pr.name as projname
+					pr.name as projname,
+					f.author_name as author_name,
+					f.author_gender as author_gender,
+					f.year as year,
+					f.location as location
 				FROM
 						words as w
 					LEFT JOIN
@@ -101,11 +105,7 @@ module.exports = {
 			`;
 
 			req.mysql.connect();
-			req.mysql.query(query, [word], function(err, results) {
-				if (err) {
-					console.log(err);
-				}
-
+			req.mysql.promQuery(query, [word]).then(results => {
 				res.send({polygons: results});
 			})
 

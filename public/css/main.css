@@ -118,3 +118,9 @@ table.bordered td
 	margin-left: 0.5em;
 	margin-right: 0.5em;
 }
+
+table.bordered td {
+	border: 1px solid black;
+	border-collapse: auto;
+	padding: 0.5em;
+}
