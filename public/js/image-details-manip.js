@@ -267,7 +267,8 @@ $(function() {
 	$('#text-selector-area').on('change', '', updateTextReadout);
 
 	function updateTextReadout() {
-		$('#current-text').text(getCurrentText().text);
+		var text = getCurrentText().text;
+		$('#current-text').text(text);
 
 		var wi = $('#same-word-images');
 		wi.empty();
@@ -276,7 +277,7 @@ $(function() {
 			wi.text('not applicable');
 		} else {
 			wi.text('loading...');
-			var word = getCurrentText().text;
+			var word = text.replace(/<[^>]*>/g, '');
 			// TODO make this not linked to a single exhibit
 			$.get('/winterthur/ajax/polygons-for/' + word, function(data) {
 				wi.empty();
