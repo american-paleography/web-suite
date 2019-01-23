@@ -23,7 +23,7 @@ block content
 					="Mode:"
 					br
 					="| "
-					each mode in ["line", "single-word"]
+					each mode in ["line", "freetext", "single-word"]
 						input.mode-sel(type="radio" name="mode" value=mode checked="checked")
 						label= mode
 						=" | "
@@ -34,6 +34,8 @@ block content
 					label No Punctuation
 					table
 						tr#word-selector-area
+				p#freetext-mode.nodrag
+					span#freetext
 		span.infobox.draggable
 			="text: "
 			span#current-text

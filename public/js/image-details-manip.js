@@ -4,7 +4,7 @@ $(function() {
 	const puncStripRegex = /[^\w'&i<>-]/g;
 
 
-	$('.draggable').draggable()
+	$('.draggable').draggable({cancel:'.nodrag'})
 	var lastScrollPos = { top: 0, left: 0};
 	$(document).on('scroll', function() {
 		var tpos = document.body.scrollTop;
@@ -23,6 +23,23 @@ $(function() {
 
 
 		lastScrollPos = {top: tpos, left: lpos};
+	})
+
+	$(document).on('selectionchange', function(evt) {
+		var selection = getSelection();
+		if (selection.anchorNode && selection.anchorNode.parentNode.id != 'freetext') {
+			return;
+		}
+
+		var range = selection.getRangeAt(0);
+		var start = range.startOffset;
+		var end = range.endOffset;
+
+		var obj = $('#freetext').data('props');
+		obj.start = start;
+		obj.end = end;
+
+		updateTextReadout();
 	})
 
 	var image_path = $('#source').attr("src").match(/\/([^\/]*\/[^\/]*)$/)[1];
@@ -173,7 +190,7 @@ $(function() {
 			if (inc) {
 				nextLine();
 			}
-		} else {
+		} else if (mode == 'single-word') {
 			var sel = $('[name=word]:checked');
 			ret.text = sel.data('text');
 			if ($('[name=strip-punctuation').is(':checked')) {
@@ -186,6 +203,9 @@ $(function() {
 			if (inc) {
 				nextWord();
 			}
+		} else if (word = 'freetext') {
+			ret = $('#freetext').data('props');
+			ret.text = $('#freetext').text().substring(ret.start, ret.end);
 		}
 
 		return ret;
@@ -257,10 +277,17 @@ $(function() {
 	$('.mode-sel').on('change', showHideWordArea);
 	function showHideWordArea() {
 		var mode = $('[name=mode]:checked').val();
-		if (mode == 'line') {
-			$('#word-mode').hide();
-		} else {
+
+		if (mode == 'single-word') {
 			$('#word-mode').show();
+		} else {
+			$('#word-mode').hide();
+		}
+
+		if (mode == 'freetext') {
+			$('#freetext-mode').show();
+		} else {
+			$('#freetext-mode').hide();
 		}
 	}
 
@@ -272,6 +299,8 @@ $(function() {
 
 		var wi = $('#same-word-images');
 		wi.empty();
+
+		// only skip the word images if we're taking a full line (freetext substrings might be common phrases)
 		var mode = $('[name=mode]:checked').val();
 		if (mode == "line") {
 			wi.text('not applicable');
@@ -332,6 +361,9 @@ $(function() {
 
 			first = false;
 		}
+
+		$('#freetext').text(active_line.text);
+		$('#freetext').data('props', {start: 0, end: 0});
 		
 		updateTextReadout();
 	}
