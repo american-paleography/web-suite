@@ -13,10 +13,10 @@ module.exports = {
 			var path = `${polygonImageDir}/${poly_id}.png`;
 			fs.exists(path, function(exists) {
 				if (exists) {
-					res.sendfile(path);
+					res.sendFile(path, {root:'.'});
 				} else {
 					ImageSlicer.slice_polygon(poly_id, path, function() {
-						res.sendfile(path);
+						res.sendFile(path, {root:"."});
 					})
 				}
 			})
@@ -46,10 +46,15 @@ module.exports = {
 
 			req.mysql.connect()
 
-			req.mysql.query('SELECT text FROM cut_polygons WHERE id = ?', [poly_id], function(err, results) {
+			req.mysql.promQuery('SELECT p.text as text, a.value as full_text FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
 				if (results[0]) {
 					res.locals.poly_text = results[0].text;
+					res.locals.line_text = results[0].full_text;
 				}
+			})
+
+			req.mysql.promQuery('SELECT l.index_num as line_num, a.value as line_text FROM line_annos a INNER JOIN `lines` l ON a.line_id = l.id INNER JOIN files f ON f.id = l.file_id WHERE a.type_id = 1 AND f.id = (SELECT l.file_id FROM `lines` l INNER JOIN cut_polygons p ON p.line_id = l.id WHERE p.id = ?) ORDER BY line_num DESC', [poly_id]).then(results => {
+				res.locals.file_text = results.map(l => l.line_text).join('\n');
 			})
 
 			req.mysql.end(function() {
