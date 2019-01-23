@@ -46,10 +46,16 @@ module.exports = {
 
 			req.mysql.connect()
 
-			req.mysql.promQuery('SELECT p.text as text, a.value as full_text FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
+			req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
 				if (results[0]) {
 					res.locals.poly_text = results[0].text;
 					res.locals.line_text = results[0].full_text;
+					var full_text = results[0].full_text;
+					res.locals.annotated = {
+						before: full_text.substring(0, results[0].start),
+						mid: full_text.substring(results[0].start, results[0].end),
+						after: full_text.substring(results[0].end),
+					}
 				}
 			})
 

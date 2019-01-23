@@ -13,7 +13,11 @@ block content
 		pre=poly_text
 	p
 		| Full line:
-		pre=line_text
+		div.annotated_line
+			=annotated.before
+			span.highlight_transcription
+				=annotated.mid
+			=annotated.after
 	p
 		| File:
 		pre=file_text

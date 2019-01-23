@@ -124,3 +124,9 @@ table.bordered td {
 	border-collapse: auto;
 	padding: 0.5em;
 }
+
+.highlight_transcription {
+	font-weight: bold;
+	text-decoration: underline;
+	font-size: 120%;
+}
