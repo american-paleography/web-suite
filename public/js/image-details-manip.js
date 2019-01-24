@@ -224,6 +224,9 @@ $(function() {
 		data.transcription = getCurrentText(false); // I originally had this incrementing the word/line, but that caused issues when canceling a save
 		data.transcription.line_id = active_line.line_id;
 
+		data.notes = $('[name=notes]').val();
+		alert(data.notes);
+
 		$.post('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
 				var text = "Saved polygon for page " + FILE_ID + ", and text \"" + data.transcription.text + "\""

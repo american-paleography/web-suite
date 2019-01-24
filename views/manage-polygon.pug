@@ -9,6 +9,14 @@ block content
 		| Image:
 		img(src=("/poly-images/" + poly_id))
 	p
+		| Notes:
+		p
+			| Internal:
+			textarea(name="notes_internal")= notes.internal
+		p
+			| Public:
+			textarea(name="notes_public")= notes.public
+	p
 		| Text:
 		pre=poly_text
 	p

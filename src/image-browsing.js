@@ -46,10 +46,14 @@ module.exports = {
 
 			req.mysql.connect()
 
-			req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
+			req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text, p.notes_internal AS notes_internal, p.notes_public AS notes_public FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
 				if (results[0]) {
 					res.locals.poly_text = results[0].text;
 					res.locals.line_text = results[0].full_text;
+					res.locals.notes = {
+						internal: results[0].notes_internal,
+						public: results[0].notes_public,
+					};
 					var full_text = results[0].full_text;
 					res.locals.annotated = {
 						before: full_text.substring(0, results[0].start),
@@ -114,7 +118,7 @@ module.exports = {
 		})
 
 		app.post('/ajax/save-cut-polygon', function(req, res) {
-			var {file_id, points, undo_indices, transcription} = req.body;
+			var {file_id, points, undo_indices, transcription, notes} = req.body;
 			var {line_id, text, start, end} = transcription
 
 			var norm_text = textUtils.normalizeHeadword(text);
@@ -125,7 +129,7 @@ module.exports = {
 			}
 
 			req.mysql.getWordId(norm_text, function(word_id) {
-				req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end, creator_id, word_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end, creator_id, word_id], function(err, results) {
+				req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end, creator_id, word_id, notes_internal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end, creator_id, word_id, notes], function(err, results) {
 					if (err) {
 						console.log(err);
 						res.send({ok:false});

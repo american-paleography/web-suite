@@ -2,6 +2,10 @@
 	width: 400px;
 }
 
+#text-selector-area {
+	border-top: 1px dotted grey;
+}
+
 #word-image-holder {
 	display: inline-block;
 }
