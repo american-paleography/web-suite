@@ -3,8 +3,8 @@ $(function() {
 
 	const puncStripRegex = /[^\w'&i<>-]/g;
 
-
-	$('.draggable').draggable({cancel:'.nodrag'})
+	var DRAGGABLE_DEFAULT_CANCEL = "input,textarea,button,select,option"
+	$('.draggable').draggable({cancel: DRAGGABLE_DEFAULT_CANCEL + "," + '.nodrag'})
 	var lastScrollPos = { top: 0, left: 0};
 	$(document).on('scroll', function() {
 		var tpos = document.body.scrollTop;
@@ -26,6 +26,7 @@ $(function() {
 	})
 
 	$(document).on('selectionchange', function(evt) {
+		console.log('test');
 		var selection = getSelection();
 		if (selection.anchorNode && selection.anchorNode.parentNode.id != 'freetext') {
 			return;
