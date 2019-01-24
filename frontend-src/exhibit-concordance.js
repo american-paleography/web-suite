@@ -231,8 +231,11 @@ class WordImageList extends React.Component {
 			)
 		})
 
+		var header = AnnotatedWordImage.headerRow()
+
 		return (
 			<table class="bordered">
+				{header}
 				{images}
 			</table>
 		)
@@ -240,6 +243,16 @@ class WordImageList extends React.Component {
 }
 
 class AnnotatedWordImage extends React.Component {
+	static headerRow() {
+		return (
+			<tr>
+				{['Image', 'Year', 'Author Name', 'Author Gender', 'Location'].map(label => (
+					<th>{label}</th>
+				))}
+			</tr>
+		)
+	}
+
 	render() {
 		var poly = this.props.polygon;
 		var src = `/poly-images/${poly.id}`
