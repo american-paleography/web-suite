@@ -62,29 +62,37 @@ module.exports = {
 
 			req.mysql.connect()
 
-			req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text, p.notes_internal AS notes_internal, p.notes_public AS notes_public FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
-				if (results[0]) {
-					res.locals.poly_text = results[0].text;
-					res.locals.line_text = results[0].full_text;
-					res.locals.notes = {
-						internal: results[0].notes_internal,
-						public: results[0].notes_public,
-					};
-					var full_text = results[0].full_text;
-					res.locals.annotated = {
-						before: full_text.substring(0, results[0].start),
-						mid: full_text.substring(results[0].start, results[0].end),
-						after: full_text.substring(results[0].end),
+			Promise.all([
+				req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text, p.notes_internal AS notes_internal, p.notes_public AS notes_public FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
+					if (results[0]) {
+						res.locals.poly_text = results[0].text;
+						res.locals.line_text = results[0].full_text;
+						res.locals.notes = {
+							internal: results[0].notes_internal,
+							public: results[0].notes_public,
+						};
+						var full_text = results[0].full_text;
+						res.locals.annotated = {
+							before: full_text.substring(0, results[0].start),
+							mid: full_text.substring(results[0].start, results[0].end),
+							after: full_text.substring(results[0].end),
+						}
 					}
-				}
-			})
+				}),
 
-			req.mysql.promQuery('SELECT l.index_num as line_num, a.value as line_text FROM line_annos a INNER JOIN `lines` l ON a.line_id = l.id INNER JOIN files f ON f.id = l.file_id WHERE a.type_id = 1 AND f.id = (SELECT l.file_id FROM `lines` l INNER JOIN cut_polygons p ON p.line_id = l.id WHERE p.id = ?) ORDER BY line_num DESC', [poly_id]).then(results => {
-				res.locals.file_text = results.map(l => l.line_text).join('\n');
-			})
+				req.mysql.promQuery('SELECT l.file_id AS file_id FROM `lines` l INNER JOIN cut_polygons p ON l.id = p.line_id WHERE p.id = ?', [poly_id])
+				.then(function(file_res) {
+					var {file_id} = file_res[0];
+					res.locals.file_id = file_id;
 
-			req.mysql.end(function() {
-				res.render('manage-polygon', {poly_id});
+					return req.mysql.promQuery('SELECT l.index_num as line_num, a.value as line_text FROM line_annos a INNER JOIN `lines` l ON a.line_id = l.id INNER JOIN files f ON f.id = l.file_id WHERE a.type_id = 1 AND f.id = ? ORDER BY line_num ASC', [file_id]).then(results => {
+						res.locals.file_text = results.map(l => l.line_text).join('\n');
+					})
+				})
+			]).then(_ => {
+				req.mysql.end(function() {
+					res.render('manage-polygon', {poly_id});
+				})
 			})
 		})
 
@@ -131,6 +139,21 @@ module.exports = {
 			})
 
 			req.mysql.end();
+		})
+
+		app.post('/ajax/update-polygon-text', function(req, res) {
+			var {poly_id, transcription} = req.body;
+			var {line_id, text, start, end} = transcription
+
+			var norm_text = textUtils.normalizeHeadword(text);
+
+			req.mysql.getWordId(norm_text, function(word_id) {
+				req.mysql.promQuery('UPDATE cut_polygons SET line_id = ?, text = ?, trans_start = ?, trans_end = ?, word_id = ? WHERE id = ?', [line_id, text, start, end, word_id, poly_id])
+				.then(function(results) {
+					res.send({ok:true});
+				}).catch(_ => res.send({ok:false}));
+				req.mysql.end();
+			})
 		})
 
 		app.post('/ajax/save-cut-polygon', function(req, res) {

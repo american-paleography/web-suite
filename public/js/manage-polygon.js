@@ -1,4 +1,6 @@
 $(function() {
+	const FILE_ID = $('[name=file_id]').val();
+
 	$('#delete-polygon').on('click', function() {
 		var poly_id = $('[name=poly_id]').val();
 		var confirmed = confirm(`Really delete polygon ${poly_id}?`);
@@ -30,4 +32,23 @@ $(function() {
 			}
 		});
 	})
+
+	$('#update-text').on('click', function() {
+		var data = {};
+		data.poly_id = $('[name=poly_id]').val();
+		data.transcription = getCurrentText(false);
+		data.transcription.line_id = active_line.line_id;
+
+		$.post('/ajax/update-polygon-text', data, function(res) {
+			if (res.ok) {
+				alert("Updated transcribed text linkage");
+			} else {
+				alert("FAILURE: Couldn't update transcribed text linkage");
+			}
+		})
+	})
+
+	$.get('/ajax/lines-for-file/' + FILE_ID, function(data) {
+		useLines(data.lines);
+	});
 })

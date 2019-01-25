@@ -5,8 +5,9 @@ block page_scripts
 	script(src="https://code.jquery.com/ui/1.12.1/jquery-ui.js")
 
 	link(rel="stylesheet" href="/css/polygon-cutter.css")
-	script(src="/js/render-images.js")
-	script(src="/js/image-details-manip.js")
+	+js("/js/render-images.js")
+	+js("/js/poly-text-editing.js")
+	+js("/js/image-details-manip.js")
 
 block content
 	div#cutter(style="display: none;")
