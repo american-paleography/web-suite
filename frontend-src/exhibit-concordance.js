@@ -246,7 +246,7 @@ class AnnotatedWordImage extends React.Component {
 	static headerRow() {
 		return (
 			<tr>
-				{['Image', 'Year', 'Author Name', 'Author Gender', 'Location'].map(label => (
+				{['Image', 'Notes', 'Year', 'Author Name', 'Author Gender', 'Location'].map(label => (
 					<th>{label}</th>
 				))}
 			</tr>
@@ -269,6 +269,9 @@ class AnnotatedWordImage extends React.Component {
 			<tr>
 				<td>
 					{img}
+				</td>
+				<td>
+					{poly.notes_public}
 				</td>
 				<td>
 					{poly.year}

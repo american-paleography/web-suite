@@ -84,7 +84,8 @@ module.exports = {
 					f.author_name as author_name,
 					f.author_gender as author_gender,
 					f.year as year,
-					f.location as location
+					f.location as location,
+					po.notes_public as notes_public
 				FROM
 						words as w
 					LEFT JOIN

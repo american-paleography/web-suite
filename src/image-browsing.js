@@ -41,6 +41,22 @@ module.exports = {
 			req.mysql.end();
 		})
 
+		app.post('/ajax/polygon/:poly_id/update-notes', function (req, res) {
+			var {poly_id} = req.params;
+
+			var {internal, public} = req.body.notes;
+
+			req.mysql.promQuery('UPDATE cut_polygons SET notes_internal = ?, notes_public = ? WHERE id = ?', [internal, public, poly_id]).then(function(results) {
+				res.send({ok: true});
+			}).catch(err => {
+				res.send({ok: false});
+
+				console.error(err);
+			})
+
+			req.mysql.end();
+		})
+
 		app.get('/polygon/:poly_id', function(req, res) {
 			var {poly_id} = req.params;
 

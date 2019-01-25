@@ -13,4 +13,21 @@ $(function() {
 			});
 		}
 	})
+
+	$('#update-notes').on('click', function() {
+		var poly_id = $('[name=poly_id]').val();
+
+		var notes = {
+			internal: $('[name=notes_internal]').val(),
+			public: $('[name=notes_public]').val(),
+		}
+
+		$.post('/ajax/polygon/' + poly_id + '/update-notes', {notes}, function(res) {
+			if (res.ok) {
+				alert("Updated notes");
+			} else {
+				alert("FAILURE: Couldn't update notes");
+			}
+		});
+	})
 })
