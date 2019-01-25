@@ -5,7 +5,7 @@ class PolygonList {
 	constructor(path, description, where) {
 		this.path = path;
 		this.description = description;
-		this.sql = "SELECT id FROM cut_polygons WHERE " + where + " ORDER BY id ASC";
+		this.sql = "SELECT id, text, file_id FROM cut_polygons WHERE " + where + " ORDER BY id ASC";
 	}
 }
 

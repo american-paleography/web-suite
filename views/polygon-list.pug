@@ -1,7 +1,9 @@
 extends layout.pug
 
 block content
+	h3= "Polygon list: " + desc
 	ul
 		each poly in polygons
 			li
-				a(href="/polygon/" + poly.id)= poly.id
+				a(href="/polygon/" + poly.id)= `polygon ${poly.id}`
+				=poly.text ? ` (file ${poly.file_id}, '${poly.text}')` : ` (file ${poly.file_id})`
