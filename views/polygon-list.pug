@@ -1,0 +1,7 @@
+extends layout.pug
+
+block content
+	ul
+		each poly in polygons
+			li
+				a(href="/polygon/" + poly.id)= poly.id

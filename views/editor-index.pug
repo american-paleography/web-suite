@@ -1,0 +1,7 @@
+extends layout.pug
+
+block content
+	ul
+		each list in polygon_lists
+			li
+				a(href="/editor/polygon-list" + list.path)= list.description
