@@ -26,15 +26,29 @@ $(function() {
 	})
 
 	$(document).on('selectionchange', function(evt) {
-		console.log('test');
 		var selection = getSelection();
-		if (selection.anchorNode && selection.anchorNode.parentNode.id != 'freetext') {
+		try {
+			if (selection.anchorNode && selection.anchorNode.parentNode.id != 'freetext') {
+				return;
+			}
+
+			if (selection.rangeCount == 0) {
+				return;
+			}
+
+			var range = selection.getRangeAt(0);
+			var start = range.startOffset;
+			var end = range.endOffset;
+		} catch(e) {
+			// TODO log errors so that I can fix them
+			// (but any errors are, probably, non-fatal)
+
 			return;
 		}
 
-		var range = selection.getRangeAt(0);
-		var start = range.startOffset;
-		var end = range.endOffset;
+		if (start === undefined || end === undefined) {
+			return;
+		}
 
 		var obj = $('#freetext').data('props');
 		obj.start = start;
