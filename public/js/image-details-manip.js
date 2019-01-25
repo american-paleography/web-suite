@@ -239,7 +239,6 @@ $(function() {
 		data.transcription.line_id = active_line.line_id;
 
 		data.notes = $('[name=notes]').val();
-		alert(data.notes);
 
 		$.post('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
@@ -250,6 +249,7 @@ $(function() {
 					if (keep) {
 						initCutter();
 						getCurrentText(true); // okay, let's increment HERE
+						$('[name=notes]').val('');
 					} else {
 						$.post('/ajax/delete-polygon/' + res.id, function(res) {
 							if (res.ok) {
