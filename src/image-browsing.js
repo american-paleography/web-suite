@@ -22,6 +22,55 @@ module.exports = {
 			})
 		})
 
+		app.get('/prototype/composite-poly-line/:line_id', function(req, res) {
+			var line_id = req.params.line_id;
+			var note = '[automatic: composite line image]' 
+			
+			req.mysql.promQuery("SELECT id FROM cut_polygons WHERE notes_internal = ? AND line_id = ?", [note, line_id])
+			.then(results => {
+				if (results[0] && results[0].id) {
+					finish(results[0].id);
+				} else {
+					return req.mysql.promQuery("SELECT file_id, points FROM cut_polygons WHERE line_id = ?", [line_id])
+					.then(polygons => {
+						var file_id = polygons[0].file_id;
+						var points = polygons.map(p => JSON.parse(p.points)).reduce((acc, item) => acc.concat(item), []);
+
+						var minX = Math.min(...points.map(p => p[0]));
+						var maxX = Math.max(...points.map(p => p[0]));
+						var minY = Math.min(...points.map(p => p[1]));
+						var maxY = Math.max(...points.map(p => p[1]));
+
+						var path = [
+							[minX, minY],
+							[maxX, minY],
+							[maxX, maxY],
+							[minX, maxY],
+						];
+
+						return {file_id, path};
+					}).then(({file_id, path}) => {
+						return req.mysql.promQuery('INSERT INTO cut_polygons(file_id, line_id, points, notes_internal) VALUES (?, ?, ?, ?)', [file_id, line_id, JSON.stringify(path), note])
+					}).then(_ => req.mysql.promQuery('SELECT LAST_INSERT_ID() AS id'))
+					.then(results => finish(results[0].id))
+				}
+			})
+			.then(_ => req.mysql.end());
+
+			function finish(poly_id) {
+				var path = `${polygonImageDir}/${poly_id}.png`;
+				fs.exists(path, function(exists) {
+					if (exists) {
+						res.sendFile(path, {root:'.'});
+					} else {
+						ImageSlicer.slice_polygon(poly_id, path, function() {
+							res.sendFile(path, {root:"."});
+						})
+					}
+				})
+			}
+		})
+
 		app.get('/editor/docsets', function(req, res) {
 			req.mysql.connect();
 
@@ -63,7 +112,7 @@ module.exports = {
 			req.mysql.connect()
 
 			Promise.all([
-				req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text, p.notes_internal AS notes_internal, p.notes_public AS notes_public FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id WHERE p.id = ? AND a.type_id = 1', [poly_id]).then(results => {
+				req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text, p.notes_internal AS notes_internal, p.notes_public AS notes_public FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id AND a.type_id = 1 WHERE p.id = ?', [poly_id]).then(results => {
 					if (results[0]) {
 						res.locals.poly_text = results[0].text;
 						res.locals.line_text = results[0].full_text;
@@ -71,7 +120,7 @@ module.exports = {
 							internal: results[0].notes_internal,
 							public: results[0].notes_public,
 						};
-						var full_text = results[0].full_text;
+						var full_text = results[0].full_text || '';
 						res.locals.annotated = {
 							before: full_text.substring(0, results[0].start),
 							mid: full_text.substring(results[0].start, results[0].end),
@@ -80,7 +129,7 @@ module.exports = {
 					}
 				}),
 
-				req.mysql.promQuery('SELECT l.file_id AS file_id FROM `lines` l INNER JOIN cut_polygons p ON l.id = p.line_id WHERE p.id = ?', [poly_id])
+				req.mysql.promQuery('SELECT p.file_id AS file_id FROM cut_polygons p WHERE p.id = ?', [poly_id])
 				.then(function(file_res) {
 					var {file_id} = file_res[0];
 					res.locals.file_id = file_id;
