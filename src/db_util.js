@@ -85,6 +85,40 @@ function createConnection() {
 		})
 	}
 
+	sess.promSearchPolygonsByWord = function(condition, params) {
+		var query = `
+			SELECT
+				po.id as id,
+				po.text as text,
+				f.name as filename,
+				pr.name as projname,
+				f.author_name as author_name,
+				f.author_gender as author_gender,
+				f.year as year,
+				f.location as location,
+				po.notes_public as notes_public
+			FROM
+					words as w
+				INNER JOIN
+					cut_polygons as po
+				ON
+					po.word_id = w.id
+				LEFT JOIN
+					files as f
+				ON
+					f.id = po.file_id
+				LEFT JOIN
+					projects as pr
+				ON
+					pr.id = f.project
+			WHERE
+				${condition}
+			;
+		`;
+
+		return sess.promQuery(query, params);
+	}
+
 	return sess;
 }
 

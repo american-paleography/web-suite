@@ -90,6 +90,17 @@ module.exports = {
 			req.mysql.end();
 		})
 
+		app.get('/ajax/search-polygons/by-initial-substring/:word', function(req, res) {
+			var word = req.params.word;
+
+			req.mysql.connect();
+			req.mysql.promSearchPolygonsByWord('w.lc_text like ?', [word + '%']).then(results => {
+				res.send({polygons: results});
+			})
+
+			req.mysql.end();
+		})
+
 		app.post('/ajax/polygon/:poly_id/update-notes', function (req, res) {
 			var {poly_id} = req.params;
 
