@@ -12,8 +12,11 @@ function slice_polygon(id, path, callback) {
 	mysql.query('SELECT po.points, f.name as filename, pr.name as projname FROM  cut_polygons po LEFT JOIN files f ON f.id = po.file_id LEFT JOIN projects pr ON pr.id = f.project WHERE po.id = ?', [id], function(err, results) {
 		if (err) {
 			console.log(err);
-		} else {
+			return;
+		} else if (results[0]) {
 			console.log("got polygon");
+		} else {
+			return;
 		}
 
 		var {points, filename, projname} = results[0];
