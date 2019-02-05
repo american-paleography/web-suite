@@ -1,0 +1,7 @@
+each poly in polygons
+	div.displaycase
+		div.cutout-image
+			img(src=base_path + poly.src)
+		div.cutout-info
+			p.came_from= poly.comes_from
+			p.transcript= poly.text

@@ -1,0 +1,13 @@
+extend layout.pug
+
+block page_scripts
+	script!= pug_file
+
+	+js("/js/exhibit-gallery.js")
+
+
+block content
+	ul#letters
+		each letter in 'abcdefghjiklmnopqrstuvwxyz'.split('')
+			li.navbubble.letter(data-letter=letter)= letter
+	div#gallery-output
