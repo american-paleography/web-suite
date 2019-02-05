@@ -1,6 +1,6 @@
 $(function() {
 	const ajax_path = $('[name=ajax-path]').val();
-	$('#letters > .letter').on('click', function() {
+	$('#letters > .navbubble').on('click', function() {
 		var out = $('#gallery-output');
 		out.empty();
 		$.get('/winterthur/ajax/polygon-list/' + ajax_path + '?begins_with=' + $(this).data('letter'), function(data) {

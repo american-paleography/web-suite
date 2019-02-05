@@ -10,5 +10,5 @@ block content
 	+val("ajax-path", ajax_path)
 	ul#letters
 		each letter in 'abcdefghjiklmnopqrstuvwxyz'.split('')
-			li.navbubble.letter(data-letter=letter)= letter
+			li.navbubble(data-letter=letter)= letter
 	div#gallery-output
