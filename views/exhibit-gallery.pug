@@ -7,6 +7,7 @@ block page_scripts
 
 
 block content
+	+val("ajax-path", ajax_path)
 	ul#letters
 		each letter in 'abcdefghjiklmnopqrstuvwxyz'.split('')
 			li.navbubble.letter(data-letter=letter)= letter
