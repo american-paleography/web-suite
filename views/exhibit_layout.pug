@@ -1,0 +1,14 @@
+extend layout.pug
+
+block subheader
+	section#nav-subheader
+		span#logo-placeholder(data-comment="this is where the logo goes")
+		ul#exhibit-navmenu
+			li
+				+link("concordance") Concordance
+			li
+				+link("gallery/cutouts/phrase") Phrase Cutouts
+			li
+				+link("gallery/cutouts/word") Word Cutouts
+			li
+				+link("gallery/cutouts/letter") Letter Cutouts
