@@ -149,15 +149,15 @@ module.exports = {
 
 		router.get('/gallery/cutouts/word', function(req, res) {
 			var pug = require('pug');
-			res.render("exhibit-gallery", {ajax_path:"single-word", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
+			res.render("exhibit-gallery", {ajax_path:"single-word", page_display_name: "Words", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
 		})
 		router.get('/gallery/cutouts/phrase', function(req, res) {
 			var pug = require('pug');
-			res.render("exhibit-gallery", {ajax_path:"phrase", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
+			res.render("exhibit-gallery", {ajax_path:"phrase", page_display_name: "Phrases", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
 		})
 		router.get('/gallery/cutouts/letter', function(req, res) {
 			var pug = require('pug');
-			res.render("exhibit-gallery", {ajax_path:"letter", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
+			res.render("exhibit-gallery", {ajax_path:"letter", page_display_name: "Letters (alphabet)", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
 		})
 
 		router.get('/ajax/lexicon', function(req, res) {

@@ -8,8 +8,13 @@ block page_scripts
 
 block content
 	-page_type = (typeof page_type == 'undefined') ? ajax_path : page_type
-
 	+val("ajax-path", ajax_path)
+
+	h1#gallery-type= page_display_name
+	div#search-filters
+		ul.search-type
+			li type A
+			li.active type B
 	ul#letters
 		each letter in 'abcdefghjiklmnopqrstuvwxyz'.split('')
 			li.navbubble(data-letter=letter)= letter
