@@ -20,12 +20,21 @@ html
 					a(href=base_path)= institution + " Exhibit"
 			span#home-link
 				a(href="/index") American Paleography
-			span#user-menu.right
-				if me.username
-					span= `Username: ${me.username}`
-				else
-					span No User. 
-					a(href="/login") Login?
+			ul#user-menu.dropdown-top
+				li
+					| Accounts
+					ul.dropdown-inner
+						if me.username
+							li
+								= `Username: ${me.username}`
+							li
+								a(href="/login") change user
+						else
+							li
+								| No User. 
+							li
+								a(href="/login") Login?
 		block subheader
-		div
+		section.main
 			block content
+		footer
