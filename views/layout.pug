@@ -11,7 +11,8 @@ html
 			link(href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Cormorant+Garamond" rel="stylesheet")
 			script(src="https://use.fontawesome.com/4ae676603d.js")
 
-			link(type="text/css" href="/css/main.css" rel="Stylesheet")
+			if (!omit_style)
+				link(type="text/css" href="/css/main.css" rel="Stylesheet")
 
 		block page_scripts
 	body

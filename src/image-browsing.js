@@ -181,6 +181,7 @@ module.exports = {
 			req.mysql.connect();
 
 			var locals = { proj, page };
+			locals.omit_style = true
 
 			req.mysql.end(function() {
 				res.render('page-batches/details', locals);

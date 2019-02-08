@@ -1,6 +1,15 @@
 $(function() {
 	var DRAGGABLE_DEFAULT_CANCEL = "input,textarea,button,select,option"
-	$('.draggable').draggable({cancel: DRAGGABLE_DEFAULT_CANCEL + "," + '.nodrag'})
+	$('.draggable').draggable({cancel: DRAGGABLE_DEFAULT_CANCEL + "," + '.nodrag'});
+	setTimeout(function() {
+		var left = 5;
+		var top = 5;
+		$('.draggable').each((i, el) => {
+			$(el).offset({left, top});
+			left += $(el).outerWidth() + 5;
+			console.log(left);
+		})
+	}, 2000);
 	var lastScrollPos = { top: 0, left: 0};
 	$(document).on('scroll', function() {
 		var tpos = document.body.scrollTop;
