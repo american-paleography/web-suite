@@ -1,7 +1,11 @@
-each poly in polygons
+each poly, index in polygons
 	div.displaycase
 		div.cutout-image
-			img(src=base_path + poly.src)
+			-src = base_path + poly.src
+			if index < 10
+				img.loading(src=base_path + poly.src onload="lazyLoad(this)")
+			else
+				img.waiting(src="/img/loading.gif" data-path=src)
 		div.cutout-info
 			p.came_from= poly.comes_from
 			p.transcript= poly.text
