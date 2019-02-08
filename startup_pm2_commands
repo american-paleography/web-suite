@@ -1,0 +1,1 @@
+pm2 start --interpreter sass --name sass --interpreter-args --watch public/css/
