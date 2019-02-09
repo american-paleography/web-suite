@@ -1,3 +1,5 @@
+include ./text-parser.pug
+
 each poly, index in polygons
 	div.displaycase
 		div.cutout-image
@@ -8,4 +10,5 @@ each poly, index in polygons
 				img.waiting(src="/img/loading.gif" data-path=src)
 		div.cutout-info
 			p.came_from= poly.comes_from
-			p.transcript= poly.text
+			p.transcript
+				+transcript(poly.text)

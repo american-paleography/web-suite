@@ -1,0 +1,29 @@
+mixin transcript(text)
+	-
+		var last_pos = 0
+		var segments = []
+		// we're not actually using the replacement, but we DO need that callback
+		text.replace(/<([^>]+)>(.*?)<\/\1>/g, function(match, tag, inner, start_pos, str) {
+			var pre = str.substr(last_pos, start_pos);
+			segments.push({text: pre})
+			segments.push({tag: tag, text: inner})
+			last_pos = start_pos + match.length
+		})
+		if (last_pos != text.length)
+			segments.push({text: text.substr(last_pos)})
+	each segment in segments.filter(s => s.text)
+		if segment.tag == 'sup'
+			sup
+				=segment.text
+		else if segment.tag == 'del'
+			strike
+				=segment.text
+		else if segment.tag == 'und'
+			u
+				=segment.text
+		else if segment.tag == 'note'
+			- // do nothing
+		else
+			=segment.text
+			
+		
