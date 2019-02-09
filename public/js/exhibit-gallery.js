@@ -2,27 +2,6 @@ $(function() {
 	const ajax_path = $('[name=ajax-path]').val();
 	const out = $('#gallery-output');
 
-	$(document).on('load', 'img', function() {
-		$(this).removeClass('loading');
-		$(this).addClass('loaded');
-		var count = $('.loading').length
-		var add = 10 - count;
-
-		alert(add);
-
-		if (add > 0) {
-			$('.waiting').each((i, el) => {
-				if (i >= add) {
-					return;
-				}
-
-				$(el).removeClass('waiting');
-				$(el).addClass('loading');
-				el.src = $(el).data('path');
-			})
-		}
-	})
-
 	$('#letters > .navbubble').on('click', function() {
 		$('.navbubble.active').removeClass('active');
 		$(this).addClass('active');
@@ -33,8 +12,6 @@ $(function() {
 	})
 
 	$('.navbubble[data-letter=a]').click();
-
-	alert('test');
 })
 
 function lazyLoad(el) {
