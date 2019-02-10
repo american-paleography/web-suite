@@ -1,0 +1,13 @@
+extend layout.pug
+
+block content
+	|empty:
+	ul
+		each dat, proj in collect(empty_lines, 'projname', 'filename')
+			li= proj
+				ul
+					each dat2, file in dat
+						li= file
+							ul
+								each line in dat2
+									li= `line num: ${line.line_num}`

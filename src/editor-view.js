@@ -36,5 +36,20 @@ module.exports = {
 				.then(_ => req.mysql.end())
 			})
 		})
+
+		router.get('/transcription-progress/:domain', function(req, res) {
+			req.mysql.connect();
+
+			var tmp = {}
+			req.mysql.promQuery('select id from domains where name = ?', [req.params.domain])
+			.then(r => tmp.domain = r[0].id)
+			.then(_ => {
+				return req.mysql.promQuery("SELECT l.id AS line_id, f.name AS filename, l.index_num AS line_num, p.name AS projname FROM `lines` l LEFT JOIN files f ON f.id = l.file_id LEFT JOIN projects p ON p.id = f.project LEFT JOIN line_annos a ON a.type_id = 1 AND a.line_id = l.id WHERE p.domain_id = ? AND (a.value IS NULL OR a.value = '')", [tmp.domain])
+			}).then(data => {
+				res.locals.empty_lines = data
+			})
+			.then(_ => res.render('transcription-progress'))
+			.then(_ => req.mysql.end())
+		})
 	},
 }

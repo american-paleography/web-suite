@@ -1,3 +1,30 @@
+-
+	function collect(arr, ...levels) {
+		var set = {};
+
+		function put_in(item, cont, more) {
+			var prop = more[0];
+			var val = item[prop];
+			
+			if (!cont[val]) {
+				cont[val] = more.length > 1 ? {} : [];
+			}
+			var sub = cont[val];
+
+			if (more.length > 1) {
+				put_in(item, sub, more.slice(1));
+			} else {
+				sub.push(item);
+			}
+		}
+
+		arr.forEach(el => {
+			put_in(el, set, levels);
+		})
+		
+		return set;
+	}
+
 mixin link(path)
 	a(href=base_path+path)
 		block
