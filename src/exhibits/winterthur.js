@@ -160,6 +160,54 @@ module.exports = {
 			res.render("exhibit-gallery", {ajax_path:"letter", page_display_name: "Letters (alphabet)", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
 		})
 
+
+		router.get('/pageset-exhibit/test-data', function(req, res) {
+			req.mysql.promQuery(`
+				SELECT
+					f.id as file_id,
+					a.value as text,
+					l.index_num as line_num,
+					f.name as filename,
+					p.name as projname
+				FROM
+					files f
+				INNER JOIN
+					projects p ON p.id = f.project
+				INNER JOIN
+					\`lines\` l ON l.file_id = f.id
+				INNER JOIN
+					line_annos a ON a.type_id = 1 AND a.line_id = l.id
+				WHERE file_id IN (1290, 1291, 1292)
+				ORDER BY
+					file_id ASC,
+					line_num ASC
+				;
+
+			`).then(results => {
+				var files = {}
+				results.forEach(line => {
+					var fid = line.file_id;
+					if (!files[fid]) {
+						files[fid] = {
+							lines: [],
+							id: line.file_id,
+							filename: line.filename,
+							projname: line.projname,
+							src: `http://image-store.tpen-demo.americanpaleography.org/${line.projname}/${line.filename}`,
+						}
+					}
+					var file = files[fid];
+					file.lines.push({
+						text: line.text,
+						num: line.line_num,
+					})
+				})
+
+				res.locals.files = Object.keys(files).map(k => files[k])
+			}).then(_ => res.render('pageset-exhibit'))
+			.then(_ => req.mysql.end())
+		})
+
 		router.get('/ajax/lexicon', function(req, res) {
 			req.mysql.connect();
 

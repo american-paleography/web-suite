@@ -1,0 +1,23 @@
+extend exhibit_layout.pug
+
+block page_scripts
+	+js('/js/pageset-exhibit.js')
+
+block content
+	div.title
+		h1 Manuscript exhibit page (test data, title goes here)
+	div#page-list
+		h3 other pages
+		each page, index in files
+			div.page-selector(data-index=index)
+				a(href=page.src)
+					img.thumbnail(src=page.src)
+					span.pagenum= `${index+1} / ${files.length}`
+
+	each page, index in files
+		div.transcript.toggle(data-index=index)
+			each line in page.lines
+				span.line= line.text
+				br
+		div.page-image.toggle(data-index=index)
+			img(src=page.src)
