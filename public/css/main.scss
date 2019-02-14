@@ -233,6 +233,7 @@ h1 {
     max-width: $max-width; /* 1 */
     margin-left: auto; /* 2 */
     margin-right: auto; /* 2 */
+    margin-bottom: 142px;
     padding-left: 23px; /* 3 */
     padding-right: 23px; /* 3 */
     width: calc(100% - 46px); /* 1 */
@@ -288,7 +289,6 @@ h1 {
 
 #gallery-output {
   margin-top: 60px;
-  margin-bottom: 142px;
 
   .displaycase {
     background-color: $white;
@@ -360,6 +360,81 @@ h1 {
       img {
         max-height: 195px;
       }
+    }
+  }
+}
+
+.document {
+  display: grid;
+  grid-template-columns: 375px 60px auto;
+  grid-template-areas:
+    "title title title"
+    "transcript pagelist pageimage";
+
+  .title {
+    grid-area: title;
+    margin-bottom: 55px;
+  }
+
+  #page-list {
+    grid-area: pagelist;
+    background-color: #aaaaaa;
+    color: #ffffff;
+    padding: 10px;
+
+    h3 {
+      white-space: nowrap;
+      transform: rotate(-90deg) translateX(-40%) translateY(-110%);
+      width: 5em;
+    }
+
+    .page-selector {
+      width: 40px;
+      padding-bottom: 3px;
+      margin-bottom: 5px;
+      background-color: #333333;
+
+      &:nth-of-type(1) {
+        margin-top: 90px;
+      }
+
+      &.active {
+        border: 1px solid #AF150E;
+        background-color: #AF150E;
+      }
+
+      .thumbnail {
+        width: 100%;
+      }
+
+      .pagenum {
+        display: block;
+        font-size: 11px;
+        text-align: center;
+      }
+    }
+  }
+
+  .transcript.inactive, .page-image.inactive {
+    display: none;
+  }
+
+  .transcript.active, .page-image.active {
+    display: block;
+  }
+
+  .transcript.active {
+    grid-area: transcript;
+  }
+
+  .page-image.active {
+    grid-area: pageimage;
+    background-color: #E6EEF3;
+    text-align: center;
+
+    img {
+      max-width: 80%;
+
     }
   }
 }

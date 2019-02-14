@@ -204,7 +204,7 @@ module.exports = {
 				})
 
 				res.locals.files = Object.keys(files).map(k => files[k])
-			}).then(_ => res.render('pageset-exhibit'))
+			}).then(_ => res.render('pageset-exhibit', {main_class:"document"}))
 			.then(_ => req.mysql.end())
 		})
 
