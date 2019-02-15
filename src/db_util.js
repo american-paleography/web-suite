@@ -17,6 +17,17 @@ function createConnection() {
 		return robustify(cb => this.query(...args, cb));
 	}
 
+	sess.promInsertOne = function(table, obj) {
+		var keys = Object.keys(obj);
+		var sub_in = keys.map(k => '?');
+
+		var query = `INSERT INTO ${table}(${keys}) VALUES (${sub_in});`
+
+		var vals = keys.map(k => obj[k]);
+
+		return this.promQuery(query, vals);
+	}
+
 	sess.upsert = function(table, obj, callback) {
 		var field_names = Object.keys(obj);
 		var values = field_names.map(f => obj[f]);

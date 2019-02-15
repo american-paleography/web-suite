@@ -233,24 +233,29 @@ module.exports = {
 			}
 
 			req.mysql.getWordId(norm_text, function(word_id) {
-				req.mysql.query('INSERT INTO cut_polygons (file_id, points, undo_point_indices, line_id, text, trans_start, trans_end, creator_id, word_id, notes_internal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [file_id, JSON.stringify(points), JSON.stringify(undo_indices), line_id, text, start, end, creator_id, word_id, notes], function(err, results) {
-					if (err) {
-						console.log(err);
-						res.send({ok:false});
-					} else {
-						req.mysql.query('SELECT LAST_INSERT_ID() AS id', function(err, results) {
-							if (err) {
-								console.log(err);
-								res.send({ok:true});
-							} else {
-								console.log(results);
-								res.send({ok:true, id: results[0].id});
-							}
-						})
-					}
+				var saveData = {
+					file_id,
+					points: JSON.stringify(points),
+					undo_point_indices: JSON.stringify(undo_indices),
+					line_id,
+					text,
+					trans_start: start,
+					trans_end: end,
+					creator_id,
+					word_id,
+					notes_internal: notes,
+				}
 
-					req.mysql.end();
-				});
+				req.mysql.promInsertOne('cut_polygons', saveData)
+				.then(function(results) {
+					return req.mysql.promQuery('SELECT LAST_INSERT_ID() AS id')
+					.then(function(results) {
+						res.send({ok:true, id: results[0].id});
+					})
+					.catch(err => res.send({ok:true})) // no ID, but that's fine here
+				})
+				.catch(err => res.send({ok:false}))
+				.finally(_ => req.mysql.end());
 			})
 		})
 
