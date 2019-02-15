@@ -13,10 +13,12 @@ block content
 				img.thumbnail(src=page.src)
 				span.pagenum= `${index+1} / ${files.length}`
 
+	include text-parser.pug
 	each page, index in files
 		div.transcript.toggle(data-index=index)
 			each line in page.lines
-				span.line= line.text
+				span.line
+					+transcript(line.text)
 				br
 		div.page-image.toggle(data-index=index)
 			img(src=page.src)
