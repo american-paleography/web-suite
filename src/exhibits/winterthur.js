@@ -161,50 +161,62 @@ module.exports = {
 		})
 
 
-		router.get('/pageset-exhibit/test-data', function(req, res) {
-			req.mysql.promQuery(`
-				SELECT
-					f.id as file_id,
-					a.value as text,
-					l.index_num as line_num,
-					f.name as filename,
-					p.name as projname
-				FROM
-					files f
-				INNER JOIN
-					projects p ON p.id = f.project
-				INNER JOIN
-					\`lines\` l ON l.file_id = f.id
-				INNER JOIN
-					line_annos a ON a.type_id = 1 AND a.line_id = l.id
-				WHERE file_id IN (1290, 1291, 1292)
-				ORDER BY
-					file_id ASC,
-					line_num ASC
-				;
+		router.get('/browse-pagesets', function(req, res) {
+			req.mysql.promQuery('SELECT id, name FROM docsets')
+			.then(results => res.locals.sets = results)
+			.then(_ => res.render('pageset-exhibit-browsing'))
+			.then(_ => req.mysql.end());
+		})
 
-			`).then(results => {
-				var files = {}
-				results.forEach(line => {
-					var fid = line.file_id;
-					if (!files[fid]) {
-						files[fid] = {
-							lines: [],
-							id: line.file_id,
-							filename: line.filename,
-							projname: line.projname,
-							src: `http://image-store.tpen-demo.americanpaleography.org/${line.projname}/${line.filename}`,
+		router.get('/pageset-exhibit/:set_id', function(req, res) {
+			Promise.all([
+				req.mysql.promQuery(`
+					SELECT
+						f.id as file_id,
+						a.value as text,
+						l.index_num as line_num,
+						f.name as filename,
+						p.name as projname
+					FROM
+						files f
+					INNER JOIN
+						projects p ON p.id = f.project
+					INNER JOIN
+						\`lines\` l ON l.file_id = f.id
+					INNER JOIN
+						line_annos a ON a.type_id = 1 AND a.line_id = l.id
+					WHERE file_id IN (SELECT file_id FROM docsets_files_join WHERE docset_id = ?)
+					ORDER BY
+						filename ASC,
+						line_num ASC
+					;
+
+				`, [req.params.set_id]).then(results => {
+					var files = {}
+					results.forEach(line => {
+						var fid = line.file_id;
+						if (!files[fid]) {
+							files[fid] = {
+								lines: [],
+								id: line.file_id,
+								filename: line.filename,
+								projname: line.projname,
+								src: `http://image-store.tpen-demo.americanpaleography.org/${line.projname}/${line.filename}`,
+							}
 						}
-					}
-					var file = files[fid];
-					file.lines.push({
-						text: line.text,
-						num: line.line_num,
+						var file = files[fid];
+						file.lines.push({
+							text: line.text,
+							num: line.line_num,
+						})
 					})
-				})
 
-				res.locals.files = Object.keys(files).map(k => files[k])
-			}).then(_ => res.render('pageset-exhibit', {main_class:"document"}))
+					res.locals.files = Object.keys(files).map(k => files[k])
+				}),
+				req.mysql.promQuery('SELECT name FROM docsets WHERE id = ?', [req.params.set_id]).then(results => {
+					res.locals.title = `Document set '${results[0].name}'`;
+				})
+			]).then(_ => res.render('pageset-exhibit', {main_class:"document"}))
 			.then(_ => req.mysql.end())
 		})
 

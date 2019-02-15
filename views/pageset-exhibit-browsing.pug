@@ -1,0 +1,7 @@
+extend exhibit_layout.pug
+
+block content
+	ul
+		for set in sets
+			li
+				a(href="pageset-exhibit/"+set.id)= set.name

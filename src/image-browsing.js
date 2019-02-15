@@ -90,6 +90,10 @@ module.exports = {
 			req.mysql.end();
 		})
 
+		app.get('/editor/docset/:id', function(req, res) {
+			var set_id = req.params.id;
+		})
+
 		app.get('/ajax/search-polygons/by-initial-substring/:word', function(req, res) {
 			var word = req.params.word;
 
