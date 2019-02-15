@@ -344,7 +344,7 @@ h1 {
   }
 }
 
-.letter, .single-word {
+.letter, .single-word, .abbreviation, .letter-sequence {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;

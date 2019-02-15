@@ -39,24 +39,7 @@ block content
 					| File:
 					pre=file_text
 			td
-				div#text-selector-area
-					p
-						="Mode:"
-						br
-						="| "
-						each mode in ["line", "freetext", "single-word"]
-							input.mode-sel(type="radio" name="mode" value=mode checked="checked")
-							label= mode
-							=" | "
-					p
-						select#line-selector
-					p#word-mode
-						input(type="checkbox" name="strip-punctuation")
-						label No Punctuation
-						table
-							tr#word-selector-area
-					p#freetext-mode.nodrag
-						span#freetext
+				include text-selector-area.pug
 			td
 				button#update-text Update Text
 				p

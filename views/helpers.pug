@@ -37,3 +37,7 @@ mixin bool(name, val)
 	input(type="hidden" name=name value=(val ? 1 : 0))
 mixin val(name, val)
 	input(type="hidden" name=name value=val)
+
+mixin checkbox(name, labelText)
+	input(type="checkbox" name=name)
+	label(for=name)= labelText

@@ -44,121 +44,53 @@ module.exports = {
 			})
 		})
 
-		router.get('/ajax/polygon-list/single-word', function(req, res) {
-			req.mysql.connect();
+		function makePolygonList(sql_cond, path, friendly_path, page_name) {
+			router.get('/ajax/polygon-list/' + path, function(req, res) {
+				req.mysql.connect();
 
-			var conditions = [
-				"is_word = true"
-			];
-			var sqlParams = [];
+				var conditions = [
+					sql_cond
+				];
+				var sqlParams = [];
 
-			if (req.query.begins_with) {
-				conditions.push("w.lc_text LIKE ?");
-				sqlParams.push(req.query.begins_with + '%');
-			}
-
-
-			res.set('Content-Type', 'application/json');
-
-			req.mysql.promQuery(`
-				SELECT
-					p.id AS src, -- since that's basically our img src there
-					p.text AS text,
-					w.lc_text AS lex_entry,
-					f.name AS comes_from -- this is where the image comes from
-				FROM cut_polygons p
-				INNER JOIN words w ON w.id = p.word_id
-				INNER JOIN files f ON f.id = p.file_id
-				WHERE
-					${conditions.map(c => `(${c})`).join(" AND ")}
-				ORDER BY
-					lex_entry ASC
-				;
-			`, sqlParams)
-			.then(polygons => res.send({polygons}))
-			.then(req.mysql.end());
-		})
-		router.get('/ajax/polygon-list/letter', function(req, res) {
-			req.mysql.connect();
-
-			var conditions = [
-				"is_letter = true"
-			];
-			var sqlParams = [];
-
-			if (req.query.begins_with) {
-				conditions.push("w.lc_text LIKE ?");
-				sqlParams.push(req.query.begins_with + '%');
-			}
+				if (req.query.begins_with) {
+					conditions.push("w.lc_text LIKE ?");
+					sqlParams.push(req.query.begins_with + '%');
+				}
 
 
-			res.set('Content-Type', 'application/json');
+				res.set('Content-Type', 'application/json');
 
-			req.mysql.promQuery(`
-				SELECT
-					p.id AS src, -- since that's basically our img src there
-					p.text AS text,
-					w.lc_text AS lex_entry,
-					f.name AS comes_from -- this is where the image comes from
-				FROM cut_polygons p
-				INNER JOIN words w ON w.id = p.word_id
-				INNER JOIN files f ON f.id = p.file_id
-				WHERE
-					${conditions.map(c => `(${c})`).join(" AND ")}
-				ORDER BY
-					lex_entry ASC
-				;
-			`, sqlParams)
-			.then(polygons => res.send({polygons}))
-			.then(req.mysql.end());
-		})
-		router.get('/ajax/polygon-list/phrase', function(req, res) {
-			req.mysql.connect();
+				req.mysql.promQuery(`
+					SELECT
+						p.id AS src, -- since that's basically our img src there
+						p.text AS text,
+						w.lc_text AS lex_entry,
+						f.name AS comes_from -- this is where the image comes from
+					FROM cut_polygons p
+					INNER JOIN words w ON w.id = p.word_id
+					INNER JOIN files f ON f.id = p.file_id
+					WHERE
+						${conditions.map(c => `(${c})`).join(" AND ")}
+					ORDER BY
+						lex_entry ASC
+					;
+				`, sqlParams)
+				.then(polygons => res.send({polygons}))
+				.then(req.mysql.end());
+			})
 
-			var conditions = [
-				"is_phrase = true"
-			];
-			var sqlParams = [];
+			router.get('/gallery/cutouts/' + friendly_path, function(req, res) {
+				var pug = require('pug');
+				res.render("exhibit-gallery", {ajax_path:path, page_display_name: page_name, pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
+			})
+		}
 
-			if (req.query.begins_with) {
-				conditions.push("w.lc_text LIKE ?");
-				sqlParams.push(req.query.begins_with + '%');
-			}
-
-
-			res.set('Content-Type', 'application/json');
-
-			req.mysql.promQuery(`
-				SELECT
-					p.id AS src, -- since that's basically our img src there
-					p.text AS text,
-					w.lc_text AS lex_entry,
-					f.name AS comes_from -- this is where the image comes from
-				FROM cut_polygons p
-				INNER JOIN words w ON w.id = p.word_id
-				INNER JOIN files f ON f.id = p.file_id
-				WHERE
-					${conditions.map(c => `(${c})`).join(" AND ")}
-				ORDER BY
-					lex_entry ASC
-				;
-			`, sqlParams)
-			.then(polygons => res.send({polygons}))
-			.then(req.mysql.end());
-		})
-
-		router.get('/gallery/cutouts/word', function(req, res) {
-			var pug = require('pug');
-			res.render("exhibit-gallery", {ajax_path:"single-word", page_display_name: "Words", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
-		})
-		router.get('/gallery/cutouts/phrase', function(req, res) {
-			var pug = require('pug');
-			res.render("exhibit-gallery", {ajax_path:"phrase", page_display_name: "Phrases", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
-		})
-		router.get('/gallery/cutouts/letter', function(req, res) {
-			var pug = require('pug');
-			res.render("exhibit-gallery", {ajax_path:"letter", page_display_name: "Letters (alphabet)", pug_file: pug.compileFileClient('./views/gallery-clip.pug', {name:"makeGallery"})});
-		})
+		makePolygonList('is_word = true', 'single-word', 'word', 'Words');
+		makePolygonList('is_letter = true', 'letter', 'letter', 'Letters (alphabet)');
+		makePolygonList('is_phrase = true', 'phrase', 'phrase', 'Phrases');
+		makePolygonList('is_abbrev = true', 'abbreviation', 'abbreviation', 'Abbreviations');
+		makePolygonList('is_letter_seq = true', 'letter-sequence', 'letter-sequence', 'Letter Sequences');
 
 
 		router.get('/browse-pagesets', function(req, res) {

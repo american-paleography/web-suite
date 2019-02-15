@@ -34,6 +34,13 @@ function getCurrentText(inc=false) {
 		ret.text = $('#freetext').text().substring(ret.start, ret.end);
 	}
 
+	[
+		'is_abbrev',
+		'is_letter_seq',
+	].forEach(name => {
+		ret[name] = $('[name=' + name + ']').is(':checked')
+	})
+
 	return ret;
 }
 

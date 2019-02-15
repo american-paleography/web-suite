@@ -1,0 +1,22 @@
+div#text-selector-area
+	p
+		="Mode:"
+		br
+		="| "
+		each mode in ["line", "freetext", "single-word"]
+			input.mode-sel(type="radio" name="mode" value=mode checked="checked")
+			label= mode
+			=" | "
+		br
+		div
+			+checkbox('is_abbrev', 'Abbreviation?')
+			=" | "
+			+checkbox('is_letter_seq', 'Letter sequence?')
+	p
+		select#line-selector
+	p#word-mode
+		+checkbox('strip-punctuation', 'No Punctuation')
+		table
+			tr#word-selector-area
+	p#freetext-mode.nodrag
+		span#freetext

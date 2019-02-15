@@ -208,16 +208,16 @@ module.exports = {
 
 		app.post('/ajax/update-polygon-text', function(req, res) {
 			var {poly_id, transcription} = req.body;
-			var {line_id, text, start, end} = transcription
+			var {line_id, text, start, end, is_abbrev, is_letter_seq} = transcription
 			text = textUtils.stripWhitespace(row.text);
 	
 			var norm_text = textUtils.normalizeHeadword(text);
 
 			req.mysql.getWordId(norm_text, function(word_id) {
-				var phr = textUtils.isPhrase(text);
-				var wrd = textUtils.isWord(text);
-				var ltr = textUtils.isLetter(text);
-				req.mysql.promQuery('UPDATE cut_polygons SET line_id = ?, text = ?, trans_start = ?, trans_end = ?, word_id = ?, is_phrase = ?, is_word = ?, is_letter = ? WHERE id = ?', [line_id, text, start, end, word_id, phr, wrd, ltr, poly_id])
+				var phr = !is_letter_seq && textUtils.isPhrase(text);
+				var wrd = !is_letter_seq && textUtils.isWord(text);
+				var ltr = !is_letter_seq && textUtils.isLetter(text);
+				req.mysql.promQuery('UPDATE cut_polygons SET line_id = ?, text = ?, trans_start = ?, trans_end = ?, word_id = ?, is_phrase = ?, is_word = ?, is_letter = ?, is_abbrev = ?, is_letter_seq = ? WHERE id = ?', [line_id, text, start, end, word_id, phr, wrd, ltr, is_abbrev, is_letter_seq, poly_id])
 				.then(function(results) {
 					res.send({ok:true});
 				}).catch(_ => res.send({ok:false}));
@@ -227,7 +227,7 @@ module.exports = {
 
 		app.post('/ajax/save-cut-polygon', function(req, res) {
 			var {file_id, points, undo_indices, transcription, notes} = req.body;
-			var {line_id, text, start, end} = transcription
+			var {line_id, text, start, end, is_abbrev, is_letter_seq} = transcription
 
 			text = textUtils.stripWhitespace(text);
 
@@ -251,9 +251,11 @@ module.exports = {
 					word_id,
 					notes_internal: notes,
 
-					is_phrase: textUtils.isPhrase(text),
-					is_word: textUtils.isWord(text),
-					is_letter: textUtils.isLetter(text),
+					is_phrase: !is_letter_seq && textUtils.isPhrase(text),
+					is_word: !is_letter_seq && textUtils.isWord(text),
+					is_letter: !is_letter_seq && textUtils.isLetter(text),
+					is_abbrev,
+					is_letter_seq,
 				}
 
 				req.mysql.promInsertOne('cut_polygons', saveData)
