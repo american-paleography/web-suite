@@ -48,7 +48,7 @@ module.exports = {
 			req.mysql.connect();
 
 			var conditions = [
-				"w.lc_text NOT LIKE '% %' AND CHAR_LENGTH(w.lc_text) > 1"
+				"is_word = true"
 			];
 			var sqlParams = [];
 
@@ -82,7 +82,7 @@ module.exports = {
 			req.mysql.connect();
 
 			var conditions = [
-				"CHAR_LENGTH(w.lc_text) = 1"
+				"is_letter = true"
 			];
 			var sqlParams = [];
 
@@ -116,7 +116,7 @@ module.exports = {
 			req.mysql.connect();
 
 			var conditions = [
-				"w.lc_text LIKE '% %'"
+				"is_phrase = true"
 			];
 			var sqlParams = [];
 

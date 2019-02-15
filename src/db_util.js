@@ -96,6 +96,21 @@ function createConnection() {
 		})
 	}
 
+	sess.promGetWordId = function(text) {
+		return this.promQuery('SELECT id FROM words WHERE lc_text = ?', [text])
+		.then(results => {
+			return new Promise((resolve, reject) => {
+				if (results && results[0]) {
+					resolve(results[0].id);
+				} else {
+					sess.promQuery('INSERT INTO words(lc_text) VALUES (?)', [text])
+					.then(_ => sess.promQuery('SELECT id FROM words WHERE lc_text = ?', [text]))
+					.then(results => resolve(results[0].id));
+				}
+			});
+		})
+	}
+
 	sess.promSearchPolygonsByWord = function(condition, params) {
 		var query = `
 			SELECT

@@ -209,11 +209,15 @@ module.exports = {
 		app.post('/ajax/update-polygon-text', function(req, res) {
 			var {poly_id, transcription} = req.body;
 			var {line_id, text, start, end} = transcription
-
+			text = textUtils.stripWhitespace(row.text);
+	
 			var norm_text = textUtils.normalizeHeadword(text);
 
 			req.mysql.getWordId(norm_text, function(word_id) {
-				req.mysql.promQuery('UPDATE cut_polygons SET line_id = ?, text = ?, trans_start = ?, trans_end = ?, word_id = ? WHERE id = ?', [line_id, text, start, end, word_id, poly_id])
+				var phr = textUtils.isPhrase(text);
+				var wrd = textUtils.isWord(text);
+				var ltr = textUtils.isLetter(text);
+				req.mysql.promQuery('UPDATE cut_polygons SET line_id = ?, text = ?, trans_start = ?, trans_end = ?, word_id = ?, is_phrase = ?, is_word = ?, is_letter = ? WHERE id = ?', [line_id, text, start, end, word_id, phr, wrd, ltr, poly_id])
 				.then(function(results) {
 					res.send({ok:true});
 				}).catch(_ => res.send({ok:false}));
@@ -224,6 +228,8 @@ module.exports = {
 		app.post('/ajax/save-cut-polygon', function(req, res) {
 			var {file_id, points, undo_indices, transcription, notes} = req.body;
 			var {line_id, text, start, end} = transcription
+
+			text = textUtils.stripWhitespace(text);
 
 			var norm_text = textUtils.normalizeHeadword(text);
 
@@ -244,6 +250,10 @@ module.exports = {
 					creator_id,
 					word_id,
 					notes_internal: notes,
+
+					is_phrase: textUtils.isPhrase(text),
+					is_word: textUtils.isWord(text),
+					is_letter: textUtils.isLetter(text),
 				}
 
 				req.mysql.promInsertOne('cut_polygons', saveData)
