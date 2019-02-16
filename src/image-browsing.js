@@ -209,7 +209,7 @@ module.exports = {
 		app.post('/ajax/update-polygon-text', function(req, res) {
 			var {poly_id, transcription} = req.body;
 			var {line_id, text, start, end, is_abbrev, is_letter_seq} = transcription
-			text = textUtils.stripWhitespace(row.text);
+			text = textUtils.stripWhitespace(text);
 	
 			var norm_text = textUtils.normalizeHeadword(text);
 
