@@ -267,7 +267,8 @@ module.exports = {
 					.catch(err => res.send({ok:true})) // no ID, but that's fine here
 				})
 				.catch(err => res.send({ok:false}))
-				.finally(_ => req.mysql.end());
+				.then(_ => req.mysql.end())
+				.catch(_ => req.mysql.end())
 			})
 		})
 
