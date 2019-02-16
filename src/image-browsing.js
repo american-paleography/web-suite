@@ -217,7 +217,7 @@ module.exports = {
 				var phr = !is_letter_seq && textUtils.isPhrase(text);
 				var wrd = !is_letter_seq && textUtils.isWord(text);
 				var ltr = !is_letter_seq && textUtils.isLetter(text);
-				req.mysql.promQuery('UPDATE cut_polygons SET line_id = ?, text = ?, trans_start = ?, trans_end = ?, word_id = ?, is_phrase = ?, is_word = ?, is_letter = ?, is_abbrev = ?, is_letter_seq = ? WHERE id = ?', [line_id, text, start, end, word_id, phr, wrd, ltr, is_abbrev, is_letter_seq, poly_id])
+				req.mysql.promQuery('UPDATE cut_polygons SET line_id = ?, text = ?, trans_start = ?, trans_end = ?, word_id = ?, is_phrase = ?, is_word = ?, is_letter = ?, is_abbrev = ?, is_letter_seq = ? WHERE id = ?', [line_id, text, start, end, word_id, phr, wrd, ltr, !!is_abbrev, !!is_letter_seq, poly_id])
 				.then(function(results) {
 					res.send({ok:true});
 				}).catch(_ => res.send({ok:false}));
@@ -254,8 +254,8 @@ module.exports = {
 					is_phrase: !is_letter_seq && textUtils.isPhrase(text),
 					is_word: !is_letter_seq && textUtils.isWord(text),
 					is_letter: !is_letter_seq && textUtils.isLetter(text),
-					is_abbrev,
-					is_letter_seq,
+					is_abbrev: !!is_abbrev,
+					is_letter_seq: !!is_letter_seq,
 				}
 
 				req.mysql.promInsertOne('cut_polygons', saveData)
