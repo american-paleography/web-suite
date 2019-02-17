@@ -12,30 +12,32 @@ block content
 		p
 			ul
 				li
-					a(href="/winterthur") Winterthur (being built) 
-	section
-		h3 Internal Info
-		p
-			ul
-				li
-					a(href="/internal/todo-list") Todo List
-				li
-					a(href="/editor/index") Editor's Dashboard
-	section
-		h4 Metadata management
-		p
-			a(href="manage-metadata.html") manage metadata fields
-			=" "
-			a(href="update-file-metadata") add metadata to file
-	section
-		h4 in-development pages
-		p
-			ul
-				li
-					a(href="/file-overview") file overview
-				li
-					a(href="/concordance") Concordance
-				li
-					a(href="/dev-ui/images") tinkering with images
-				li
-					a(href="/image-slicing/classify-guesses") Word Image Classification
+					a(href="/winterthur") Winterthur (in progress) 
+	if ugly_mode
+		section
+			h3 Internal Info
+			p
+				ul
+					li
+						a(href="/internal/todo-list") Todo List
+					li
+						a(href="/editor/index") Editor's Dashboard
+		section
+			h4 Metadata management
+			p
+				a(href="manage-metadata.html") manage metadata fields
+				=" "
+				a(href="update-file-metadata") add metadata to file
+	if super_ugly_mode
+		section
+			h4 in-development pages
+			p
+				ul
+					li
+						a(href="/file-overview") file overview
+					li
+						a(href="/concordance") Concordance
+					li
+						a(href="/dev-ui/images") tinkering with images
+					li
+						a(href="/image-slicing/classify-guesses") Word Image Classification
