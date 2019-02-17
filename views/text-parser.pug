@@ -9,9 +9,33 @@ mixin transcript(text)
 			segments.push({tag: tag, text: inner})
 			last_pos = start_pos + match.length
 		})
-		if (last_pos != text.length)
+		if (last_pos != text.length) {
 			segments.push({text: text.substr(last_pos)})
-	each segment in segments.filter(s => s.text)
+		}
+
+		segments = [].concat(...segments.map(function(seg) {
+			if (!seg.text) {
+				return seg;
+			}
+
+			var last_pos = 0
+			var tmp = [];
+
+			seg.text.replace(/<([^]+)>/g, function(match, tag, start_pos, str) {
+				var pre = str.substr(last_pos, start_pos-last_pos);
+				tmp.push({tag: seg.tag, text: pre});
+
+				tmp.push({tag:tag});
+				last_pos = start_pos + match.length
+			})
+			if (last_pos != seg.text.length) {
+				tmp.push({tag: seg.tag, text: seg.text.substr(last_pos)})
+			}
+
+			return tmp;
+
+		}))
+	each segment in segments.filter(s => s.tag || s.text)
 		if segment.tag == 'sup'
 			sup
 				=segment.text
@@ -23,6 +47,10 @@ mixin transcript(text)
 				=segment.text
 		else if segment.tag == 'note'
 			- // do nothing
+		else if segment.tag == 'p-bgn'
+			!="&nbsp;".repeat(5)
+		else if segment.tag == 'p-end'
+			br
 		else
 			=segment.text
 			
