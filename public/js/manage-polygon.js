@@ -24,7 +24,7 @@ $(function() {
 			public: $('[name=notes_public]').val(),
 		}
 
-		$.post('/ajax/polygon/' + poly_id + '/update-notes', {notes}, function(res) {
+		$.postJson('/ajax/polygon/' + poly_id + '/update-notes', {notes}, function(res) {
 			if (res.ok) {
 				alert("Updated notes");
 			} else {
@@ -39,7 +39,7 @@ $(function() {
 		data.transcription = getCurrentText(false);
 		data.transcription.line_id = active_line.line_id;
 
-		$.post('/ajax/update-polygon-text', data, function(res) {
+		$.postJson('/ajax/update-polygon-text', data, function(res) {
 			if (res.ok) {
 				alert("Updated transcribed text linkage");
 			} else {

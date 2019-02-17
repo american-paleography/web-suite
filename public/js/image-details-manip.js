@@ -1,3 +1,5 @@
+
+
 $(function() {
 	var DRAGGABLE_DEFAULT_CANCEL = "input,textarea,button,select,option"
 	$('.draggable').draggable({cancel: DRAGGABLE_DEFAULT_CANCEL + "," + '.nodrag'});
@@ -179,7 +181,7 @@ $(function() {
 
 		data.notes = $('[name=notes]').val();
 
-		$.post('/ajax/save-cut-polygon', data, function(res) {
+		$.postJson('/ajax/save-cut-polygon', data, function(res) {
 			if (res.ok) {
 				var text = "Saved polygon for page " + FILE_ID + ", and text \"" + data.transcription.text + "\""
 				// this does introduce an assumption that id != 0
