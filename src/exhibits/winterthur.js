@@ -165,6 +165,8 @@ module.exports = {
 						(SELECT count(*) FROM words_lines_join j WHERE j.word_id = w.id) AS full_count
 					FROM
 						words w
+					WHERE
+						w.lc_text IS NOT NULL AND w.lc_text != ''
 					ORDER BY w.lc_text ASC
 				) AS lexicon
 				WHERE poly_count > 0
