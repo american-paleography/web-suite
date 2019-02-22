@@ -48,11 +48,15 @@ function useLines(lines) {
 	valid_lines = lines;
 	var line_sel = $('#line-selector');
 	line_sel.empty();
+	var preselect_line = $('[name=preselected_line]').val()
 
 	valid_lines.forEach((line,i) => {
 		var opt = $('<option>');
 		opt.attr('value', i);
 		opt.text(`[${line.line_num + 1}]: ${line.text}`);
+		if (preselect_line == line.line_num + 1) {
+			opt.attr('selected', 'selected');
+		}
 		line_sel.append(opt);
 	});
 

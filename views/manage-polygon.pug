@@ -30,15 +30,19 @@ block content
 					pre=poly_text
 				p
 					| Full line:
-					div.annotated_line
+					div.annotated-line
+						span.line-number
+							=line_num
+							=": "
 						=annotated.before
-						span.highlight_transcription
+						span.highlight-transcription
 							=annotated.mid
 						=annotated.after
 				p
 					| File:
 					pre=file_text
 			td
+				+val("preselected_line", line_num)
 				include text-selector-area.pug
 			td
 				button#update-text Update Text

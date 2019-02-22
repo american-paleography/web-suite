@@ -127,7 +127,7 @@ module.exports = {
 			req.mysql.connect()
 
 			Promise.all([
-				req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text, p.notes_internal AS notes_internal, p.notes_public AS notes_public FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id AND a.type_id = 1 WHERE p.id = ?', [poly_id]).then(results => {
+				req.mysql.promQuery('SELECT p.text as text, p.trans_start as start, p.trans_end as end, a.value as full_text, p.notes_internal AS notes_internal, p.notes_public AS notes_public, l.index_num AS line_num FROM cut_polygons p LEFT JOIN line_annos a ON a.line_id = p.line_id AND a.type_id = 1 LEFT JOIN `lines` l ON l.id = p.line_id WHERE p.id = ?', [poly_id]).then(results => {
 					if (results[0]) {
 						res.locals.poly_text = results[0].text;
 						res.locals.line_text = results[0].full_text;
@@ -136,6 +136,7 @@ module.exports = {
 							public: results[0].notes_public,
 						};
 						var full_text = results[0].full_text || '';
+						res.locals.line_num = results[0].line_num + 1,
 						res.locals.annotated = {
 							before: full_text.substring(0, results[0].start),
 							mid: full_text.substring(results[0].start, results[0].end),
@@ -226,10 +227,13 @@ module.exports = {
 		})
 
 		app.post('/ajax/save-cut-polygon', function(req, res) {
+			console.log('test');
 			var {file_id, points, undo_indices, transcription, notes} = req.body;
 			var {line_id, text, start, end, is_abbrev, is_letter_seq} = transcription
 
 			text = textUtils.stripWhitespace(text);
+
+			console.log(['flags', is_abbrev, is_letter_seq]);
 
 			var norm_text = textUtils.normalizeHeadword(text);
 
