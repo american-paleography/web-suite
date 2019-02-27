@@ -1,3 +1,9 @@
+$.fn.appendText = function(text) {
+	return this.each(function() {
+		$(this).append(document.createTextNode(text));
+	})
+}
+
 var settings = {
 	variants: {},
 };
@@ -151,7 +157,6 @@ function reloadGlossaryData(manifest, other_data) {
 		});
 
 		var variantList = $('#glossaryVariantForms');
-		window.onerror = alert;
 		var variants = settings.variants;
 		variantList.empty();
 		Object.keys(variants).sort().forEach(baseWord => {
@@ -195,9 +200,19 @@ function reloadGlossaryData(manifest, other_data) {
 			post.text(data.line_text.substring(end));
 
 			var whereFrom = $('<span class="source-line-indicator">');
-			whereFrom.text(` [line ${data.line_index_in_file} / file ${data.file_index}]`);
-			whereFrom.data('folio_index', data.folio_index);
-			whereFrom.data('aabb', data.aabb);
+			whereFrom.appendText(` [line ${data.line_index_in_file} / page "`);
+			var pageImageLink = $('<a>');
+			pageImageLink.text(data.page_name);
+			pageImageLink.attr('href', "/imageResize?folioNum=" + data.folio_index + "&height=2000");
+			whereFrom.append(pageImageLink);
+			whereFrom.appendText(`"]`);
+
+			var toggleButton = $('<button class="show-line-image">');
+			toggleButton.text("toggle line image");
+			toggleButton.data('folio_index', data.folio_index);
+			toggleButton.data('aabb', data.aabb);
+
+			whereFrom.append(toggleButton);
 
 			container.append(pre);
 			container.append(ul);
@@ -210,18 +225,22 @@ function reloadGlossaryData(manifest, other_data) {
 		$('a#download-json').attr('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonVersion))
 		$('a#download-csv').attr('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvVersion))
 
-		$('.source-line-indicator').on('click', function() {
+		$('.show-line-image').on('click', function() {
 			if (this.imageEl) {
 				this.imageEl.remove();
 				this.imageEl = null;
 			} else {
 				var path = "/imageResize?folioNum=" + $(this).data('folio_index') + "&height=2000";
-				var holder = $(this);
-				var aabb = holder.data('aabb');
+				var holder = $(this).parent();
+				var dataEl = $(this);
+				var aabb = dataEl.data('aabb');
 				var [x, y, w, h] = aabb.split(',').map(x => parseInt(x));
 				var vert_scale = parseFloat($('[name=line-height]').val() || 1)
+				var horiz_scale = parseFloat($('[name=line-width]').val() || 1)
 				y -= (vert_scale - 1)/2 * h;
 				h *= vert_scale
+				x -= (horiz_scale - 1)/2 * w;
+				w *= horiz_scale;
 				var scale = 2; // is this correct for all images...?
 				var canvas = $('<canvas>');
 				var img = new Image();
@@ -278,7 +297,8 @@ function reloadGlossaryData(manifest, other_data) {
 						annotationData.lines.push(line);
 						fileText.push(line);
 						var aabb = wrapper.on.match(/#xywh=(.*)/)[1];
-						addWords(line, annotationData.lines.length-1, file_id, currentLineIndex, folio, aabb);
+						var pageName = wrapper.on.match(/\/([^i\/]*)\.jpe?g#?/i)[1]
+						addWords(line, annotationData.lines.length-1, file_id, currentLineIndex, folio, aabb, pageName, wrapper.on);
 					}
 				});
 			})
@@ -287,7 +307,7 @@ function reloadGlossaryData(manifest, other_data) {
 		})
 	}
 
-	function addWords(line, lookupIndex, fileIndex, fileStartLine, folio, aabb) {
+	function addWords(line, lookupIndex, fileIndex, fileStartLine, folio, aabb, page_name, on) {
 		annotationData.linesWithMetadata.push({
 
 			line_index: lookupIndex,
@@ -296,6 +316,8 @@ function reloadGlossaryData(manifest, other_data) {
 			line_index_in_file: lookupIndex - fileStartLine,
 			folio_index: folio,
 			aabb: aabb,
+			page_name,
+			on,
 		});
 
 		var words = line.split(/\s+/);
@@ -320,6 +342,8 @@ function reloadGlossaryData(manifest, other_data) {
 					line_index_in_file: lookupIndex - fileStartLine,
 					folio_index: folio,
 					aabb: aabb,
+					page_name,
+					on,
 				};
 				dict[word].push(obj)
 			}

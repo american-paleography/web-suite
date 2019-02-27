@@ -1,4 +1,4 @@
-function searchLines() {
+function searchLines(lines) {
 	$('#search-output').empty();
 
 	var lineTmp = $('#search-line-index').val().split(',').filter(x => x);
@@ -14,18 +14,11 @@ function searchLines() {
 		}
 	});
 	var searchTextList = Array.from($('.search-text').map(function() { return $(this).val().toLowerCase(); })).filter(x => x);
+	var matchTagUnclear = $('#require-unclear').is(":checked");
 	
 	var overall_container = $('#search-output');
 
-	$.post('/search', {search:{lineIndices, searchTextList}}, function(subset) {
-		subset.forEach(l => {
-			var para = $('<p>');
-			overall_container.append(para);
-			renderLine(l, para)
-		});
-	});
-/*
-	lines.filter(line => {
+	var subset = lines.filter(line => {
 		if (lineIndices.length > 0 && !lineIndices.includes(line.line_index_in_file)) {
 			return false;
 		}
@@ -38,9 +31,17 @@ function searchLines() {
 			}
 		}
 
+		if (matchTagUnclear && !text.includes('<unclear>')) {
+			return false;
+		}
+
 		return true;
 	});
-*/
+	subset.forEach(l => {
+		var para = $('<p>');
+		overall_container.append(para);
+		renderLine(l, para)
+	});
 
 	
 
@@ -48,8 +49,7 @@ function searchLines() {
 	function renderLine(line, container) {
 		var path = "/imageResize?folioNum=" + line.folio_index + "&height=2000";
 		var aabb = line.aabb;
-		var [x, y, w, h] = [line.x, line.y, line.w, line.h];
-		/*
+		var [x, y, w, h] = aabb.split(',').map(x => parseInt(x));
 		var vert_scale = parseFloat($('[name=line-height]').val() || 1)
 		y -= (vert_scale - 1)/2 * h;
 		h *= vert_scale
@@ -64,7 +64,6 @@ function searchLines() {
 			container.prepend(canvas);
 		};
 		img.src = path;
-		*/
 
 		var span = $('<span>');
 		span.text(line.line_text);
@@ -77,7 +76,3 @@ $(function() {
 		$(this).parent().append('<input type="text" class="search-text">');
 	});
 })
-
-$(function() {
-	$('#do-search').on('click', searchLines);
-});
