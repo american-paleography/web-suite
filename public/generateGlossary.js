@@ -36,11 +36,10 @@ $(function() {
 	});
 });
 
-function reloadGlossaryData(manifest, other_data) {
+function reloadGlossaryData(source_data) {
 	// data used by various parts of this closure
 	var annotationData = {
 		lines: [],
-		files: [],
 		words: {},
 		linesWithMetadata: [],
 	};
@@ -49,11 +48,14 @@ function reloadGlossaryData(manifest, other_data) {
 	}
 
 
+	var t_start = Date.now();
 	// kick off the actual work
-	manifest.sequences.forEach(extractLines);
+	source_data.forEach(extractOneLine);
+	console.log('parsed, ' + (Date.now() - t_start) + 'ms');
 	displayVariantsInDom();
 	setVariantForms();
 	showGlossary();
+	console.log('rendered, ' + (Date.now() - t_start) + 'ms');
 
 
 	$('#add_variant').on('click', function() {
@@ -283,37 +285,23 @@ function reloadGlossaryData(manifest, other_data) {
 	}
 
 
-	function extractLines(sequence) {
-		var file_id = 0;
-		sequence.canvases.forEach(canvas => {
-			var folio = other_data ? JSON.parse(other_data.ls_fs)[file_id].folioNumber : null;
-			var fileText = [];
-			var currentLineIndex = annotationData.lines.length;
-			canvas.otherContent.forEach(other => {
-				other.resources.forEach(wrapper => {
-					var resource = wrapper.resource;
-					if (resource["@type"] == "cnt:ContentAsText") {
-						var line = resource['cnt:chars'] || '';
-						annotationData.lines.push(line);
-						fileText.push(line);
-						var aabb = wrapper.on.match(/#xywh=(.*)/)[1];
-						var pageName = wrapper.on.match(/\/([^i\/]*)\.jpe?g#?/i)[1]
-						addWords(line, annotationData.lines.length-1, file_id, currentLineIndex, folio, aabb, pageName, wrapper.on);
-					}
-				});
-			})
-			annotationData.files.push(fileText.join("\n"));
-			file_id += 1;
-		})
+	function extractOneLine(row) {
+		var file_id = row.file_id;
+		var folio = null;
+		var line = row.text;
+		annotationData.lines.push(line);
+		var aabb = 'xywh'.split('').map(k => row[k]).join(',');
+		var pageName = row.pagename;
+		addWords(line, annotationData.lines.length-1, file_id, row.line_num, folio, aabb, pageName, 'temp');
 	}
 
-	function addWords(line, lookupIndex, fileIndex, fileStartLine, folio, aabb, page_name, on) {
+	function addWords(line, lookupIndex, fileIndex, lineIndexInFile, folio, aabb, page_name, on) {
 		annotationData.linesWithMetadata.push({
 
 			line_index: lookupIndex,
 			line_text: line,
 			file_index: fileIndex,
-			line_index_in_file: lookupIndex - fileStartLine,
+			line_index_in_file: lineIndexInFile,
 			folio_index: folio,
 			aabb: aabb,
 			page_name,
@@ -339,7 +327,7 @@ function reloadGlossaryData(manifest, other_data) {
 					word_offset: pos,
 					word_length: rawWord.length,
 					file_index: fileIndex,
-					line_index_in_file: lookupIndex - fileStartLine,
+					line_index_in_file: lineIndexInFile, 
 					folio_index: folio,
 					aabb: aabb,
 					page_name,

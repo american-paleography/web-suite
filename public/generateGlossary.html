@@ -111,10 +111,9 @@
 	<script>
 $(function() {
 	// WHY isn't this built-in. Anyway, strip off the '?', then get the right parameter
-	var projectId = location.search.substring(1).split("&").map(comp => comp.split("=")).filter(comp => comp[0] == 'projectID')[0][1];
-	$.get('/getProjectTPENServlet?projectID=' + projectId, function(payload) {
+	$.get('/ajax/old-concordance-data', function(payload) {
 		window.onerror = alert;
-		reloadGlossaryData(JSON.parse(payload.manifest), payload);
+		reloadGlossaryData(payload);
 	}).fail(function(response) {
 		if (response.status == 401) {
 			redirectToLogin("You must be logged in to view data. ")

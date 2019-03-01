@@ -366,6 +366,35 @@ app.post('/create-inline-metadata-def', function(req, res) {
 	res.send({ok:true});
 })
 
+app.get('/ajax/old-concordance-data', function(req, res) {
+	req.mysql.promQuery(`
+		SELECT
+			a.value AS text,
+			l.index_num AS line_num,
+			l.x AS x,
+			l.y AS y,
+			l.w AS w,
+			l.h AS h,
+			f.id AS file_id,
+			f.name AS filename,
+			p.name AS projname
+		FROM
+			line_annos AS a
+		INNER JOIN
+			\`lines\` AS l ON l.id = a.line_id
+		INNER JOIN
+			files AS f ON f.id = l.file_id
+		INNER JOIN
+			projects AS p ON p.id = f.project
+		WHERE
+			a.type_id = 1
+		;
+	`).then(results => {
+		res.set('Content-Type', 'application/json');
+		res.send(results);
+	}).then(_ => req.mysql.end());
+})
+
 
 
 
