@@ -192,34 +192,18 @@ function reloadGlossaryData(source_data) {
 			var start = data.word_offset;
 			var end = data.word_offset + data.word_length;
 
-			var pre = $('<span>');
-			pre.text(data.line_text.substring(0, start));
+			var pre = data.line_text.substring(0, start)
+			var mid = data.line_text.substring(start, end)
+			var post = data.line_text.substring(end)
 
-			var ul = $('<span style="text-decoration: underline;">');
-			ul.text(data.line_text.substring(start, end));
+			var line_num = data.line_index_in_file;
+			var page_name = data.page_name;
+			var folio = data.folio_index;
+			var aabb = data.aabb;
 
-			var post = $('<span>');
-			post.text(data.line_text.substring(end));
-
-			var whereFrom = $('<span class="source-line-indicator">');
-			whereFrom.appendText(` [line ${data.line_index_in_file} / page "`);
-			var pageImageLink = $('<a>');
-			pageImageLink.text(data.page_name);
-			pageImageLink.attr('href', "/imageResize?folioNum=" + data.folio_index + "&height=2000");
-			whereFrom.append(pageImageLink);
-			whereFrom.appendText(`"]`);
-
-			var toggleButton = $('<button class="show-line-image">');
-			toggleButton.text("toggle line image");
-			toggleButton.data('folio_index', data.folio_index);
-			toggleButton.data('aabb', data.aabb);
-
-			whereFrom.append(toggleButton);
-
-			container.append(pre);
-			container.append(ul);
-			container.append(post);
-			container.append(whereFrom);
+			var tmp = $('<div>');
+			tmp[0].innerHTML = emitWordHtml({before: pre, word: mid, after: post, line_num, page_name, folio, aabb});
+			container.append(tmp);
 		}
 
 		var jsonVersion = JSON.stringify(dict, null, '  ')

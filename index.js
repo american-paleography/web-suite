@@ -395,6 +395,10 @@ app.get('/ajax/old-concordance-data', function(req, res) {
 	}).then(_ => req.mysql.end());
 })
 
+app.get('/dynamic/old-concordance.pug.js', function(req, res) {
+	var pug = require('pug');
+	res.send(pug.compileFileClient('./views/old-concordance-line.pug', {name:"emitWordHtml"}));
+})
 
 
 

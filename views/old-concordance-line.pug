@@ -1,0 +1,14 @@
+include ./text-parser.pug
+
+span.transcript
+	+transcript(before)
+	span(style="text-decoration: underline;")
+		+transcript(word)
+	+transcript(after)
+	span.source-line-indicator
+		=` [line ${line_num} / page `
+		a(href="/imageResize?folioNum=" + folio + "&height=2000")
+			=page_name
+		|"]
+		button.show-line-image(data-folio_index=folio, data-aabb=aabb)
+			| toggle line image
