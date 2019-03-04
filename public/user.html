@@ -12,17 +12,28 @@
 
 	<body>
 		<input type="text" name="username" placeholder="username"></input>
-		<input type="text" name="password" placeholder="password"></input>
+		<input type="password" name="password" placeholder="password"></input>
 
 		<button onclick="create();">Create</button>
 		<button onclick="login();">Login</button>
 
 		<script>
 function create() {
-	$.post('/create-user', getCreds(), function(data) { alert(JSON.stringify(data));})
+	$.post('/create-user', getCreds(), function(data) { provideFeedback(data, 'registered a new user');})
 }
 function login() {
-	$.post('/login', getCreds(), function(data) { alert(JSON.stringify(data));})
+	$.post('/login', getCreds(), function(data) { provideFeedback(data, 'logged in');})
+}
+function provideFeedback(data, action) {
+	if (data.ok) {
+		alert("Successfully " + action);
+	} else {
+		var msg = 'Action failed.';
+		if (data.err) {
+			msg += "\n\n" + data.err;
+		}
+		alert(msg);
+	}
 }
 
 function getCreds() {
