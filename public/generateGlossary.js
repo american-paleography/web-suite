@@ -275,7 +275,7 @@ function reloadGlossaryData(source_data) {
 		var line = row.text;
 		annotationData.lines.push(line);
 		var aabb = 'xywh'.split('').map(k => row[k]).join(',');
-		var pageName = row.pagename;
+		var pageName = row.filename;
 		addWords(line, annotationData.lines.length-1, file_id, row.line_num, folio, aabb, pageName, 'temp');
 	}
 
