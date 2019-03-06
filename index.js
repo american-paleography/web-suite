@@ -65,12 +65,19 @@ app.use(function(req, res, next) {
 	next();
 });
 
-app.get('/', function(req, res) {
-	res.render('index');
-})
-app.get('/index', function(req, res) {
-	res.render('index');
-});
+function showIndexPage(req, res) {
+	req.mysql.connect();
+	var user_id = req.session.user_id;
+	req.mysql.promQuery('SELECT is_admin FROM users WHERE id = ?', [user_id])
+	.then(rows => res.locals.is_admin = rows[0] && rows[0].is_admin)
+	.then(_ => {
+		req.mysql.end(_ => {
+			res.render('index');
+		})
+	})
+}
+app.get('/', showIndexPage)
+app.get('/index', showIndexPage)
 
 app.get('/help/user-access', function(req, res) {
 	res.render('help_user-access');

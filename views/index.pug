@@ -13,15 +13,16 @@ block content
 			ul
 				li
 					a(href="/winterthur") Winterthur (in progress) 
-	if ugly_mode
+	if is_admin
 		section
-			h3 Internal Info
+			h3 Internal Info (admin only)
 			p
 				ul
 					li
 						a(href="/internal/todo-list") Todo List
 					li
 						a(href="/editor/index") Editor's Dashboard
+	if ugly_mode
 		section
 			h4 Metadata management
 			p
