@@ -161,7 +161,7 @@ h1 {
 // pages
 #nav-subheader {
   border-bottom: 1px solid $theme-border;
-  /*max-width: $max-width;*/ /* 1 */
+  max-width: $max-width; /* 1 */
   margin-left: auto; /* 2 */
   margin-right: auto; /* 2 */
   padding-left: 23px; /* 3 */
@@ -230,7 +230,7 @@ h1 {
 }
 
 .main {
-    /*max-width: $max-width;*/ /* 1 */
+    max-width: $max-width; /* 1 */
     margin-left: auto; /* 2 */
     margin-right: auto; /* 2 */
     margin-bottom: 142px;
@@ -306,6 +306,7 @@ h1 {
       }
 
       img {
+        max-width: 95%;
         vertical-align: middle;
       }
     }
@@ -330,14 +331,12 @@ h1 {
     width: 100%;
 
     .cutout-image {
-      /*height: 145px;*/
-      padding: 10px;
+      height: 145px;
 
 
 
       img {
-        /*max-height: 100px;*/
-        width: 100%;
+        max-height: 100px;
 
 
       }
@@ -360,7 +359,6 @@ h1 {
 
       img {
         max-height: 195px;
-        max-width: 95%;
       }
     }
   }
