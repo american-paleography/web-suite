@@ -298,15 +298,7 @@ h1 {
       background-color: $cutout-background;
       text-align: center;
 
-      &:before {
-        content: "";
-        display: inline-block;
-        height: 100%;
-        vertical-align: middle;
-      }
-
       img {
-        max-width: 95%;
         vertical-align: middle;
       }
     }
@@ -331,14 +323,10 @@ h1 {
     width: 100%;
 
     .cutout-image {
-      height: 145px;
-
-
+      padding: 10px;
 
       img {
-        max-height: 100px;
-
-
+        width: 100%;
       }
     }
   }
@@ -357,8 +345,16 @@ h1 {
     .cutout-image {
       height: 195px;
 
+      &:before {
+        content: "";
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+      }
+
       img {
         max-height: 195px;
+        max-width: 95%;
       }
     }
   }
