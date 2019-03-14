@@ -188,7 +188,7 @@ h1 {
       text-align: right;
       line-height: 3em;
 
-      &:hover {
+      &:hover, &:focus, &:active {
         .dropdown-inner {
           display: block;
         }
@@ -361,18 +361,26 @@ h1 {
 }
 
 .document {
+  display: -ms-grid;
   display: grid;
-  grid-template-columns: 375px 60px auto;
+  -ms-grid-columns: calc(50% - 30px) 60px calc(50% - 30px);
+  grid-template-columns: 500px 60px auto;
   grid-template-areas:
     "title title title"
     "transcript pagelist pageimage";
 
   .title {
+   -ms-grid-row:1;
+   -ms-grid-column:1;
+   -ms-grid-column-span:3;
     grid-area: title;
     margin-bottom: 55px;
   }
 
   #page-list {
+    -ms-grid-row:2;
+    -ms-grid-column:2;
+    -ms-grid-column-span:1;
     grid-area: pagelist;
     background-color: #aaaaaa;
     color: #ffffff;
@@ -399,8 +407,13 @@ h1 {
         background-color: #AF150E;
       }
 
+      &.inactive {
+        border: 1px solid #333333;
+        background-color: #333333;
+      }
+
       .thumbnail {
-        width: 100%;
+        width: 40px;
       }
 
       .pagenum {
@@ -420,17 +433,22 @@ h1 {
   }
 
   .transcript.active {
+    -ms-grid-row:2;
+    -ms-grid-column:1;
+    -ms-grid-column-span:1;
     grid-area: transcript;
   }
 
   .page-image.active {
+    -ms-grid-row:2;
+    -ms-grid-column:3;
+    -ms-grid-column-span:1;
     grid-area: pageimage;
     background-color: #E6EEF3;
     text-align: center;
 
     img {
-      max-width: 80%;
-
+      width: 100%;
     }
   }
 }
